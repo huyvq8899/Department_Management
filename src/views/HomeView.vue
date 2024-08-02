@@ -1,17 +1,17 @@
 <template>
-  <div class="home">
-    <DepartmentManagement />
-  </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+import { defineComponent } from 'vue';
+import LayoutView from '@/components/Layout/Layout.vue';
 
-@Options({
+export default defineComponent({
   components: {
-    HelloWorld,
+    LayoutView,
   },
-})
-export default class HomeView extends Vue {}
+});
 </script>
+
+<style scoped>
+/* Add any specific styles for HomeView here if needed */
+</style>

@@ -1,23 +1,51 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
-import Login from "../views/LoginView.vue";
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import LayoutView from '@/components/Layout/Layout.vue';
+import DepartmentManagement from '@/components/Department/DepartmentManagement.vue';
+import MainBoard from '@/components/MainBoard/MainBoard.vue';
+import Login from '@/components/Login/Login.vue';
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: "/",
-    name: "home",
-    component: HomeView,
-  },
   {
     path: '/login',
     name: 'Login',
     component: Login,
   },
+  {
+    path: '/',
+    component: LayoutView,
+    meta: { requiresAuth: true }, // Thêm meta field cho xác thực
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        component: MainBoard,
+      },
+      {
+        path: 'departments',
+        name: 'DepartmentManagement',
+        component: DepartmentManagement,
+      },
+      // Thêm các route con khác nếu cần
+    ],
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/',
+  },
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = !!localStorage.getItem('isLoggedIn');
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next('/login');
+  } else {
+    next();
+  }
 });
 
 export default router;

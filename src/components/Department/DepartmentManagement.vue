@@ -7,18 +7,18 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Actions</th>
+          <th class="id-column">ID</th>
+          <th class="name-column">Name</th>
+          <th class="description-column">Description</th>
+          <th class="actions-column">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="department in departments" :key="department.id">
-          <td>{{ department.id }}</td>
-          <td>{{ department.name }}</td>
-          <td>{{ department.description }}</td>
-          <td style="display: flex;">
+          <td class="id-column">{{ department.id }}</td>
+          <td class="name-column">{{ department.name }}</td>
+          <td class="description-column">{{ department.description }}</td>
+          <td class="actions-column" style="display: flex;">
             <button class="edit-button" @click="editDepartment(department)">
               <i class="fas fa-edit"></i> Edit
             </button>
@@ -44,6 +44,7 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useStore } from 'vuex';
@@ -54,6 +55,7 @@ export default defineComponent({
   components: {
     DepartmentModal,
   },
+  name: 'DepartmentManagement',
   setup() {
     const store = useStore();
     const showModal = ref(false);
@@ -131,11 +133,29 @@ table {
 th, td {
   border: 1px solid #ddd;
   padding: 8px;
+  text-align: center; /* Center align text for all cells by default */
 }
 
 th {
   background-color: #f4f4f4;
-  text-align: center;
+}
+
+.id-column {
+  width: 10%; /* Adjust as needed */
+}
+
+.name-column {
+  width: 30%; /* Adjust as needed */
+}
+
+.description-column {
+  width: 40%; /* Adjust as needed */
+}
+
+.actions-column {
+  width: 20%; /* Adjust as needed */
+  display: flex;
+  justify-content: space-around;
 }
 
 button {
@@ -152,6 +172,7 @@ button {
 
 .add-button {
   background-color: #4CAF50; /* Green */
+  margin-bottom: 0.7vh;
 }
 
 .edit-button {
@@ -164,18 +185,6 @@ button {
 
 .view-button {
   background-color: #FFC107; /* Amber */
-}
-
-.text-left {
-  text-align: left;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.text-right {
-  text-align: right;
 }
 
 button i {
