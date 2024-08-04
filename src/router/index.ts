@@ -3,6 +3,8 @@ import LayoutView from '@/components/Layout/Layout.vue';
 import DepartmentManagement from '@/components/Department/DepartmentManagement.vue';
 import MainBoard from '@/components/MainBoard/MainBoard.vue';
 import Login from '@/components/Login/Login.vue';
+import EmployeeView from '@/views/EmployeeView.vue';
+import UserView from '@/views/UserView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -21,9 +23,19 @@ const routes: Array<RouteRecordRaw> = [
         component: MainBoard,
       },
       {
+        path: 'users',
+        name: 'UserView',
+        component: UserView,
+      },
+      {
         path: 'departments',
         name: 'DepartmentManagement',
         component: DepartmentManagement,
+      },
+      {
+        path: 'employees',
+        name: 'EmployeeManagement',
+        component: EmployeeView,
       },
       // Thêm các route con khác nếu cần
     ],

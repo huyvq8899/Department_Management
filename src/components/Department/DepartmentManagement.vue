@@ -20,13 +20,10 @@
           <td class="description-column">{{ department.description }}</td>
           <td class="actions-column" style="display: flex;">
             <button class="edit-button" @click="editDepartment(department)">
-              <i class="fas fa-edit"></i> Edit
+              <i class="fas fa-edit"></i> 
             </button>
             <button class="delete-button" @click="deleteDepartment(department.id)">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-            <button class="view-button" @click="viewDepartment(department)">
-              <i class="fas fa-eye"></i> View
+              <i class="fas fa-trash"></i> 
             </button>
           </td>
         </tr>
@@ -153,14 +150,14 @@ th {
 }
 
 .actions-column {
-  width: 20%; /* Adjust as needed */
+  width: 30%; /* Adjust as needed */
   display: flex;
   justify-content: space-around;
 }
 
 button {
   margin: 0 5px;
-  padding: 10px 15px;
+  padding: 10px 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;

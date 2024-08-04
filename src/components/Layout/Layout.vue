@@ -8,8 +8,18 @@
                     </router-link>
                 </li>
                 <li>
+                    <router-link to="/users" exact-active-class="active" class="menu-item">
+                        <i class="fas fa-building"></i> Users
+                    </router-link>
+                </li>
+                <li>
                     <router-link to="/departments" exact-active-class="active" class="menu-item">
                         <i class="fas fa-building"></i> Departments
+                    </router-link>
+                </li>
+                <li>
+                    <router-link to="/employees" exact-active-class="active" class="menu-item">
+                        <i class="fas fa-users"></i> Empoyees  
                     </router-link>
                 </li>
                 <!-- Add more menu items as needed -->

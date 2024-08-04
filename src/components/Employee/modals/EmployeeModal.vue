@@ -4,17 +4,24 @@
       <h2>{{ modalTitle }}</h2>
       <form v-if="!isView" @submit.prevent="submit">
         <div class="input-group">
-          <label for="departmentName">Name:</label>
+          <label for="name">Name:</label>
           <div class="input-with-icon">
-            <i class="fas fa-building"></i>
-            <input id="departmentName" v-model="department.name" placeholder="Name" required />
+            <i class="fas fa-user"></i>
+            <input v-model="employee.name" placeholder="Name" required />
           </div>
         </div>
         <div class="input-group">
-          <label for="departmentDescription">Description:</label>
+          <label for="position">Position:</label>
           <div class="input-with-icon">
-            <i class="fas fa-info-circle"></i>
-            <input id="departmentDescription" v-model="department.description" placeholder="Description" required />
+            <i class="fas fa-briefcase"></i>
+            <input v-model="employee.position" placeholder="Position" required />
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="department">Department:</label>
+          <div class="input-with-icon">
+            <i class="fas fa-building"></i>
+            <input v-model="employee.department" placeholder="Department" required />
           </div>
         </div>
         <div class="button-group">
@@ -27,9 +34,10 @@
         </div>
       </form>
       <div v-else>
-        <p>ID: {{ department.id }}</p>
-        <p>Name: {{ department.name }}</p>
-        <p>Description: {{ department.description }}</p>
+        <p>ID: {{ employee.id }}</p>
+        <p>Name: {{ employee.name }}</p>
+        <p>Position: {{ employee.position }}</p>
+        <p>Department: {{ employee.department }}</p>
         <button class="close-button" @click="close">
           <i class="fas fa-times"></i> Close
         </button>
@@ -40,40 +48,40 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
-import { Department } from '@/models/Department';
+import { Employee } from '@/models/Employee';
 
 export default defineComponent({
   props: {
     visible: Boolean,
-    departmentData: Object as () => Department | null,
+    employeeData: Object as () => Employee | null,
     isEdit: Boolean,
-    isView: Boolean,
+    isView: Boolean
   },
   emits: ['close', 'submit'],
   setup(props, { emit }) {
-    const department = ref<Department>({ id: 0, name: '', description: '' });
+    const employee = ref<Employee>({ id: 0, name: '', position: '', department: '' });
 
-    watch(() => props.departmentData, (newVal) => {
+    watch(() => props.employeeData, (newVal) => {
       if (newVal) {
-        department.value = { ...newVal };
+        employee.value = { ...newVal };
       }
     });
 
     const modalTitle = computed(() => {
-      if (props.isView) return 'View Department';
-      return props.isEdit ? 'Edit Department' : 'Add Department';
+      if (props.isView) return 'View Employee';
+      return props.isEdit ? 'Edit Employee' : 'Add Employee';
     });
 
     const submit = () => {
-      emit('submit', department.value);
+      emit('submit', employee.value);
     };
 
     const close = () => {
       emit('close');
     };
 
-    return { department, modalTitle, submit, close };
-  },
+    return { employee, modalTitle, submit, close };
+  }
 });
 </script>
 
@@ -93,27 +101,26 @@ export default defineComponent({
 .modal-content {
   background: white;
   padding: 20px;
-  border-radius: 0; /* Remove rounded corners */
+  border-radius: 8px;
   width: 400px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
 }
 
 .input-group {
   margin-bottom: 15px;
-  
+
   label {
     display: block;
     margin-bottom: 5px;
     color: #333;
   }
-  
+
   .input-with-icon {
     display: flex;
     align-items: center;
 
     i {
-      margin-right: 10px; /* Space between icon and input */
+      margin-right: 10px;
       color: #333;
     }
 
