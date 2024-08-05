@@ -5,6 +5,8 @@ import MainBoard from '@/components/MainBoard/MainBoard.vue';
 import Login from '@/components/Login/Login.vue';
 import EmployeeView from '@/views/EmployeeView.vue';
 import UserView from '@/views/UserView.vue';
+import RoleView from '@/views/RoleView.vue';
+import PermissionView from '@/views/PermissionView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,6 +38,16 @@ const routes: Array<RouteRecordRaw> = [
         path: 'employees',
         name: 'EmployeeManagement',
         component: EmployeeView,
+      },
+      {
+        path: 'roles',
+        name: 'RoleView',
+        component: RoleView,
+      },
+      {
+        path: 'permissions',
+        name: 'PermissionView',
+        component: PermissionView,
       },
       // Thêm các route con khác nếu cần
     ],
