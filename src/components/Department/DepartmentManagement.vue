@@ -1,16 +1,16 @@
 <template>
   <div>
-    <h1>Department Management</h1>
+    <h1>Quản Lý Phòng Ban</h1>
     <button class="add-button" @click="openAddModal">
-      <i class="fas fa-plus"></i> Add Department
+      <i class="fas fa-plus"></i> Thêm Phòng Ban
     </button>
     <table>
       <thead>
         <tr>
           <th class="id-column">ID</th>
-          <th class="name-column">Name</th>
-          <th class="description-column">Description</th>
-          <th class="actions-column">Actions</th>
+          <th class="name-column">Tên</th>
+          <th class="description-column">Mô tả</th>
+          <th class="actions-column">Hành Động</th>
         </tr>
       </thead>
       <tbody>
@@ -20,10 +20,13 @@
           <td class="description-column">{{ department.description }}</td>
           <td class="actions-column" style="display: flex;">
             <button class="edit-button" @click="editDepartment(department)">
-              <i class="fas fa-edit"></i> 
+              <i class="fas fa-edit"></i>
             </button>
             <button class="delete-button" @click="deleteDepartment(department.id)">
-              <i class="fas fa-trash"></i> 
+              <i class="fas fa-trash"></i>
+            </button>
+            <button class="view-button" @click="viewDepartment(department)">
+              <i class="fas fa-eye"></i>
             </button>
           </td>
         </tr>
@@ -40,8 +43,6 @@
     />
   </div>
 </template>
-
-
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useStore } from 'vuex';
@@ -96,10 +97,11 @@ export default defineComponent({
       closeModal();
     };
 
-    const deleteDepartment = (id: number) => {
+    const deleteDepartment = (id: string) => {
       store.dispatch('departmentsModule/deleteDepartment', id);
     };
 
+    // Fetch departments when component is created
     store.dispatch('departmentsModule/fetchDepartments');
 
     return {
@@ -118,7 +120,6 @@ export default defineComponent({
   },
 });
 </script>
-
 <style lang="scss" scoped>
 @import "@/styles/global.scss";
 

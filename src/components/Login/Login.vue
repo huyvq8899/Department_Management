@@ -3,11 +3,11 @@
     <h1>Login</h1>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="email">Email</label>
         <input
           type="text"
-          id="username"
-          v-model="username"
+          id="email"
+          v-model="email"
           required
         />
       </div>
@@ -27,25 +27,41 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { mapState, mapActions } from 'vuex';
+import { defineComponent, ref, computed, nextTick } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'LoginForm',
-  data() {
-    return {
-      username: '',
-      password: '',
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+    const email = ref('');
+    const password = ref('');
+    const errorMessage = computed(() => store.state.authModule.errorMessage);
+
+    const handleLogin = async () => {
+      try {
+        await store.dispatch('authModule/login', { email: email.value, password: password.value });
+
+        // Use $nextTick to ensure DOM updates are complete
+        await nextTick();
+
+        if (store.state.authModule.isLoggedIn) {
+          console.log("🚀 ~ handleLogin ~ store.state.authModule.isLoggedIn:", store.state.authModule.isLoggedIn);
+          router.push({ name: 'Home' });
+        }
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
     };
-  },
-  computed: {
-    ...mapState('authModule', ['errorMessage']),
-  },
-  methods: {
-    ...mapActions('authModule', ['login']),
-    handleLogin() {
-      this.login({ username: this.username, password: this.password });
-    },
+
+    return {
+      email,
+      password,
+      errorMessage,
+      handleLogin,
+    };
   },
 });
 </script>

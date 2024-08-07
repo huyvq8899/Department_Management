@@ -4,34 +4,34 @@
       <h2>{{ modalTitle }}</h2>
       <form v-if="!isView" @submit.prevent="submit">
         <div class="input-group">
-          <label for="departmentName">Name:</label>
+          <label for="departmentName">Tên:</label>
           <div class="input-with-icon">
             <i class="fas fa-building"></i>
-            <input id="departmentName" v-model="department.name" placeholder="Name" required />
+            <input id="departmentName" v-model="department.name" placeholder="Tên" required />
           </div>
         </div>
         <div class="input-group">
-          <label for="departmentDescription">Description:</label>
+          <label for="departmentDescription">Mô tả:</label>
           <div class="input-with-icon">
             <i class="fas fa-info-circle"></i>
-            <input id="departmentDescription" v-model="department.description" placeholder="Description" required />
+            <input id="departmentDescription" v-model="department.description" placeholder="Mô tả" required />
           </div>
         </div>
         <div class="button-group">
           <button type="submit" class="submit-button">
-            <i class="fas fa-save"></i> {{ isEdit ? 'Update' : 'Add' }}
+            <i class="fas fa-save"></i> {{ isEdit ? 'Cập nhật' : 'Thêm mới' }}
           </button>
           <button type="button" class="cancel-button" @click="close">
-            <i class="fas fa-times"></i> Cancel
+            <i class="fas fa-times"></i> Hủy
           </button>
         </div>
       </form>
       <div v-else>
         <p>ID: {{ department.id }}</p>
-        <p>Name: {{ department.name }}</p>
-        <p>Description: {{ department.description }}</p>
+        <p>Tên: {{ department.name }}</p>
+        <p>Mô tả: {{ department.description }}</p>
         <button class="close-button" @click="close">
-          <i class="fas fa-times"></i> Close
+          <i class="fas fa-times"></i> Đóng
         </button>
       </div>
     </div>
@@ -51,7 +51,7 @@ export default defineComponent({
   },
   emits: ['close', 'submit'],
   setup(props, { emit }) {
-    const department = ref<Department>({ id: 0, name: '', description: '' });
+    const department = ref<Department>({ id: '', name: '', description: '' });
 
     watch(() => props.departmentData, (newVal) => {
       if (newVal) {
@@ -60,8 +60,8 @@ export default defineComponent({
     });
 
     const modalTitle = computed(() => {
-      if (props.isView) return 'View Department';
-      return props.isEdit ? 'Edit Department' : 'Add Department';
+      if (props.isView) return 'Xem Phòng Ban';
+      return props.isEdit ? 'Chỉnh Sửa Phòng Ban' : 'Thêm Mới Phòng Ban';
     });
 
     const submit = () => {
@@ -76,6 +76,7 @@ export default defineComponent({
   },
 });
 </script>
+
 
 <style scoped lang="scss">
 .modal-overlay {

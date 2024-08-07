@@ -16,10 +16,10 @@ export default defineComponent({
 
     // Check login status on mount
     onMounted(() => {
-      const isLoggedIn = !!localStorage.getItem('isLoggedIn');
-      if (isLoggedIn) {
-        store.commit('authModule/loginSuccess', ''); // Optionally provide username
-        router.push('/');
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Initialize authentication based on token
+        store.dispatch('authModule/initialize');
       } else {
         router.push('/login');
       }
@@ -29,12 +29,13 @@ export default defineComponent({
     watch(
       () => store.state.authModule.isLoggedIn,
       (newVal) => {
-        if (!newVal) {
-          router.push('/login');
-        } else {
+        if (newVal) {
           router.push('/');
+        } else {
+          router.push('/login');
         }
-      }
+      },
+      { immediate: true } // Ensure this runs immediately
     );
 
     return {};

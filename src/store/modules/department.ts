@@ -1,8 +1,12 @@
 import { Module } from 'vuex';
-import { RootState } from '@/models/Department';
-import { Department } from '@/models/Department';
+import { Department, RootState } from '@/models/Department';
+import * as departmentService from '@/services/department.service';
 
-const departmentsModule: Module<{ departments: Department[] }, RootState> = {
+interface DepartmentsState {
+  departments: Department[];
+}
+
+const departmentsModule: Module<DepartmentsState, RootState> = {
   namespaced: true,
   state: {
     departments: [],
@@ -20,27 +24,46 @@ const departmentsModule: Module<{ departments: Department[] }, RootState> = {
         state.departments[index] = updatedDepartment;
       }
     },
-    deleteDepartment(state, id: number) {
+    deleteDepartment(state, id: string) {
       state.departments = state.departments.filter(dept => dept.id !== id);
     },
   },
   actions: {
-    fetchDepartments({ commit }) {
-      // Simulate fetching data from an API
-      const departments: Department[] = [
-        { id: 1, name: 'HR', description: 'Human Resources' },
-        { id: 2, name: 'IT', description: 'Information Technology' },
-      ];
-      commit('setDepartments', departments);
+    async fetchDepartments({ commit }) {
+      try {
+        const departments = await departmentService.getDepartmentsList();
+        commit('setDepartments', departments);
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+        // Handle error accordingly
+      }
     },
-    addDepartment({ commit }, department: Department) {
-      commit('addDepartment', department);
+    async addDepartment({ commit }, department: Department) {
+      try {
+        const newDepartment = await departmentService.createDepartment(department);
+        commit('addDepartment', newDepartment);
+      } catch (error) {
+        console.error('Error adding department:', error);
+        // Handle error accordingly
+      }
     },
-    updateDepartment({ commit }, department: Department) {
-      commit('updateDepartment', department);
+    async updateDepartment({ commit }, department: Department) {
+      try {
+        const updatedDepartment = await departmentService.updateDepartment(department.id, department);
+        commit('updateDepartment', updatedDepartment);
+      } catch (error) {
+        console.error('Error updating department:', error);
+        // Handle error accordingly
+      }
     },
-    deleteDepartment({ commit }, id: number) {
-      commit('deleteDepartment', id);
+    async deleteDepartment({ commit }, id: string) {
+      try {
+        await departmentService.deleteDepartment(id);
+        commit('deleteDepartment', id);
+      } catch (error) {
+        console.error('Error deleting department:', error);
+        // Handle error accordingly
+      }
     },
   },
 };

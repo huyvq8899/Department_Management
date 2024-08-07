@@ -29,6 +29,7 @@ const userModule: Module<UserState, RootState> = {
   },
   actions: {
     async fetchUsers({ commit }) {
+      console.log('Fetching users from database...');
       try {
         const response = await userService.fetchUsers();
         commit('setUsers', response.data);
@@ -47,7 +48,7 @@ const userModule: Module<UserState, RootState> = {
     async addUser({ dispatch }, user: User) {
       try {
         await userService.addUser(user);
-        dispatch('fetchUsers');
+        dispatch('fetchUsers'); // Lấy danh sách người dùng sau khi thêm mới
       } catch (error) {
         console.error('Error adding user:', error);
       }
@@ -55,7 +56,7 @@ const userModule: Module<UserState, RootState> = {
     async updateUser({ dispatch }, user: User) {
       try {
         await userService.updateUser(user);
-        dispatch('fetchUsers');
+        dispatch('fetchUsers'); // Lấy danh sách người dùng sau khi cập nhật
       } catch (error) {
         console.error('Error updating user:', error);
       }
@@ -63,7 +64,7 @@ const userModule: Module<UserState, RootState> = {
     async deleteUser({ dispatch }, userId: number) {
       try {
         await userService.deleteUser(userId);
-        dispatch('fetchUsers');
+        dispatch('fetchUsers'); // Lấy danh sách người dùng sau khi xóa
       } catch (error) {
         console.error('Error deleting user:', error);
       }

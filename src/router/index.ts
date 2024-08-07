@@ -7,6 +7,7 @@ import EmployeeView from '@/views/EmployeeView.vue';
 import UserView from '@/views/UserView.vue';
 import RoleView from '@/views/RoleView.vue';
 import PermissionView from '@/views/PermissionView.vue';
+import { useStore } from 'vuex';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -63,8 +64,11 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const isLoggedIn = !!localStorage.getItem('isLoggedIn');
+router.beforeEach(async (to, from, next) => {
+  const store = useStore(); // Access Vuex store
+  const isLoggedIn = store.state.authModule.isLoggedIn;
+
+  // Fetch token status from Vuex store
   if (to.meta.requiresAuth && !isLoggedIn) {
     next('/login');
   } else {
