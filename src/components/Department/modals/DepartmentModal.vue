@@ -2,38 +2,45 @@
   <div v-if="visible" class="modal-overlay">
     <div class="modal-content">
       <h2>{{ modalTitle }}</h2>
-      <form v-if="!isView" @submit.prevent="submit">
+      <form @submit.prevent="submit">
         <div class="input-group">
           <label for="departmentName">Tên:</label>
           <div class="input-with-icon">
             <i class="fas fa-building"></i>
-            <input id="departmentName" v-model="department.name" placeholder="Tên" required />
+            <input
+              id="departmentName"
+              v-model="department.name"
+              placeholder="Tên"
+              :disabled="isView" 
+              required
+            />
           </div>
         </div>
         <div class="input-group">
           <label for="departmentDescription">Mô tả:</label>
           <div class="input-with-icon">
             <i class="fas fa-info-circle"></i>
-            <input id="departmentDescription" v-model="department.description" placeholder="Mô tả" required />
+            <input
+              id="departmentDescription"
+              v-model="department.description"
+              placeholder="Mô tả"
+              :disabled="isView" 
+              
+            />
           </div>
         </div>
         <div class="button-group">
-          <button type="submit" class="submit-button">
+          <button v-if="!isView" type="submit" class="submit-button">
             <i class="fas fa-save"></i> {{ isEdit ? 'Cập nhật' : 'Thêm mới' }}
           </button>
-          <button type="button" class="cancel-button" @click="close">
+          <button  v-if="!isView" type="button" class="cancel-button" @click="close">
             <i class="fas fa-times"></i> Hủy
+          </button>
+          <button v-if="isView" type="button" class="close-button" @click="close">
+            <i class="fas fa-times"></i> Đóng
           </button>
         </div>
       </form>
-      <div v-else>
-        <p>ID: {{ department.id }}</p>
-        <p>Tên: {{ department.name }}</p>
-        <p>Mô tả: {{ department.description }}</p>
-        <button class="close-button" @click="close">
-          <i class="fas fa-times"></i> Đóng
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -44,20 +51,38 @@ import { Department } from '@/models/Department';
 
 export default defineComponent({
   props: {
-    visible: Boolean,
-    departmentData: Object as () => Department | null,
-    isEdit: Boolean,
-    isView: Boolean,
+    visible: {
+      type: Boolean,
+      required: true
+    },
+    departmentData: {
+      type: Object as () => Department | null,
+      default: null
+    },
+    isEdit: {
+      type: Boolean,
+      required: true
+    },
+    isView: {
+      type: Boolean,
+      required: true
+    }
   },
   emits: ['close', 'submit'],
   setup(props, { emit }) {
-    const department = ref<Department>({ id: '', name: '', description: '' });
+    const department = ref<Department>({
+      id: '',
+      name: '',
+      description: ''
+    });
 
     watch(() => props.departmentData, (newVal) => {
       if (newVal) {
         department.value = { ...newVal };
+      } else {
+        department.value = { id: '', name: '', description: '' }; // Reset to default if no data
       }
-    });
+    }, { immediate: true });
 
     const modalTitle = computed(() => {
       if (props.isView) return 'Xem Phòng Ban';
@@ -65,7 +90,12 @@ export default defineComponent({
     });
 
     const submit = () => {
-      emit('submit', department.value);
+      if (department.value.name) {
+        emit('submit', department.value);
+      } else {
+        // Optionally handle validation or errors
+        console.log('Form is incomplete');
+      }
     };
 
     const close = () => {
@@ -73,10 +103,9 @@ export default defineComponent({
     };
 
     return { department, modalTitle, submit, close };
-  },
+  }
 });
 </script>
-
 
 <style scoped lang="scss">
 .modal-overlay {
@@ -102,13 +131,13 @@ export default defineComponent({
 
 .input-group {
   margin-bottom: 15px;
-  
+
   label {
     display: block;
     margin-bottom: 5px;
     color: #333;
   }
-  
+
   .input-with-icon {
     display: flex;
     align-items: center;

@@ -4,19 +4,27 @@ import * as departmentService from '@/services/department.service';
 
 interface DepartmentsState {
   departments: Department[];
+  totalDepartments: number;
+  currentPage: number;
+  pageSize: number;
 }
 
 const departmentsModule: Module<DepartmentsState, RootState> = {
   namespaced: true,
   state: {
     departments: [],
+    totalDepartments: 0,
+    currentPage: 1,
+    pageSize: 10, // Default page size, can be adjusted
   },
   mutations: {
-    setDepartments(state, departments: Department[]) {
+    setDepartments(state, { departments, totalCount }) {
       state.departments = departments;
+      state.totalDepartments = totalCount;
     },
     addDepartment(state, department: Department) {
-      state.departments.push(department);
+      console.log("🚀 ~ addDepartment ~ department:", department)
+      //state.departments.push(department);
     },
     updateDepartment(state, updatedDepartment: Department) {
       const index = state.departments.findIndex(dept => dept.id === updatedDepartment.id);
@@ -27,18 +35,25 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
     deleteDepartment(state, id: string) {
       state.departments = state.departments.filter(dept => dept.id !== id);
     },
+    setCurrentPage(state, page: number) {
+      state.currentPage = page;
+    },
+    setPageSize(state, size: number) {
+      state.pageSize = size;
+    },
   },
   actions: {
-    async fetchDepartments({ commit }) {
+    async fetchDepartments({ commit, state }, { pageNumber = state.currentPage, pageSize = state.pageSize } = {}) {
       try {
-        const departments = await departmentService.getDepartmentsList();
-        commit('setDepartments', departments);
+        const { items, totalCount } = await departmentService.getDepartmentsWithPagination(pageNumber, pageSize);
+        commit('setDepartments', { departments: items, totalCount });
       } catch (error) {
-        console.error('Error fetching departments:', error);
+        console.error('Error fetching departments with pagination:', error);
         // Handle error accordingly
       }
     },
     async addDepartment({ commit }, department: Department) {
+      console.log("🚀 ~ addDepartment ~ department:", department)
       try {
         const newDepartment = await departmentService.createDepartment(department);
         commit('addDepartment', newDepartment);

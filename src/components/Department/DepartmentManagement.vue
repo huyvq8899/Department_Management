@@ -4,35 +4,46 @@
     <button class="add-button" @click="openAddModal">
       <i class="fas fa-plus"></i> Thêm Phòng Ban
     </button>
+    <button class="reload-button" @click="reloadData">
+      <i class="fas fa-sync"></i> Tải lại
+    </button>
+
+    <AlertMessageModal class="flex-center"
+      :visible="alertVisible"
+      :message="alertMessage"
+      :alertType="alertType"
+      @close="alertVisible = false"
+    />
+
     <table>
       <thead>
         <tr>
-          <th class="id-column">ID</th>
           <th class="name-column">Tên</th>
           <th class="description-column">Mô tả</th>
           <th class="actions-column">Hành Động</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="department in departments" :key="department.id">
-          <td class="id-column">{{ department.id }}</td>
-          <td class="name-column">{{ department.name }}</td>
-          <td class="description-column">{{ department.description }}</td>
-          <td class="actions-column" style="display: flex;">
-            <button class="edit-button" @click="editDepartment(department)">
+        <tr v-for="department in departments" :key="department.id" @dblclick="viewDepartment(department)">
+          <td class="name-column text-left">{{ department.name }}</td>
+          <td class="description-column text-left">{{ department.description }}</td>
+          <td class="actions-column-content">
+            <button class="edit-button" @click.stop="editDepartment(department)">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="delete-button" @click="deleteDepartment(department.id)">
+            <button class="delete-button" @click.stop="showDeleteConfirmation(department.id)">
               <i class="fas fa-trash"></i>
-            </button>
-            <button class="view-button" @click="viewDepartment(department)">
-              <i class="fas fa-eye"></i>
             </button>
           </td>
         </tr>
       </tbody>
     </table>
-
+    <pagination class="flex-right"
+      :current-page="currentPage"
+      :total="totalDepartments"
+      :page-size="pageSize"
+      @page-changed="onPageChanged"
+    />
     <DepartmentModal
       :visible="showModal"
       :departmentData="currentDepartment"
@@ -41,17 +52,30 @@
       @close="closeModal"
       @submit="handleDepartmentSubmit"
     />
+    <ConfirmationModal
+      :visible="showConfirmationModal"
+      message="Bạn có chắc chắn muốn xóa phòng ban này không?"
+      :onConfirm="confirmDelete"
+      :onCancel="cancelDelete"
+    />
   </div>
 </template>
+
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import DepartmentModal from '@/components/Department/modals/DepartmentModal.vue';
+import Pagination from '@/components/Pagination.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import AlertMessageModal from '@/components/AlertMessageModal.vue'; // Import AlertMessageModal
 import { Department } from '@/models/Department';
 
 export default defineComponent({
   components: {
     DepartmentModal,
+    Pagination,
+    ConfirmationModal,
+    AlertMessageModal, // Register AlertMessageModal
   },
   name: 'DepartmentManagement',
   setup() {
@@ -60,8 +84,16 @@ export default defineComponent({
     const isEdit = ref(false);
     const isView = ref(false);
     const currentDepartment = ref<Department | null>(null);
+    const showConfirmationModal = ref(false);
+    const departmentToDelete = ref<string | null>(null);
+    const alertVisible = ref(false); // New state for alert visibility
+    const alertMessage = ref(''); // New state for alert message
+    const alertType = ref('success'); // New state for alert type (success/error)
 
     const departments = computed(() => store.state.departmentsModule.departments);
+    const currentPage = computed(() => store.state.departmentsModule.currentPage);
+    const totalDepartments = computed(() => store.state.departmentsModule.totalDepartments);
+    const pageSize = computed(() => store.state.departmentsModule.pageSize);
 
     const openAddModal = () => {
       currentDepartment.value = null;
@@ -79,8 +111,8 @@ export default defineComponent({
 
     const viewDepartment = (department: Department) => {
       currentDepartment.value = department;
-      isView.value = true;
       isEdit.value = false;
+      isView.value = true;
       showModal.value = true;
     };
 
@@ -88,21 +120,71 @@ export default defineComponent({
       showModal.value = false;
     };
 
-    const handleDepartmentSubmit = (department: Department) => {
-      if (isEdit.value) {
-        store.dispatch('departmentsModule/updateDepartment', department);
-      } else {
-        store.dispatch('departmentsModule/addDepartment', department);
+    const handleDepartmentSubmit = async (department: Department) => {
+      try {
+        if (department) {
+          if (isEdit.value) {
+            await store.dispatch('departmentsModule/updateDepartment', department);
+            alertMessage.value = 'Cập nhật phòng ban thành công!';
+            alertType.value = 'success';
+          } else {
+            await store.dispatch('departmentsModule/addDepartment', department);
+            alertMessage.value = 'Thêm phòng ban thành công!';
+            alertType.value = 'success';
+          }
+          closeModal();
+          await loadData();
+        }
+      } catch (error) {
+        alertMessage.value = 'Có lỗi xảy ra khi lưu phòng ban!';
+        alertType.value = 'error';
+        console.error('Failed to save department:', error);
+      } finally {
+        alertVisible.value = true;
+        setTimeout(() => {
+          alertVisible.value = false;
+        }, 3000);
       }
-      closeModal();
     };
 
-    const deleteDepartment = (id: string) => {
-      store.dispatch('departmentsModule/deleteDepartment', id);
+    const showDeleteConfirmation = (id: string) => {
+      departmentToDelete.value = id;
+      showConfirmationModal.value = true;
     };
 
-    // Fetch departments when component is created
-    store.dispatch('departmentsModule/fetchDepartments');
+    const confirmDelete = async () => {
+      if (departmentToDelete.value) {
+        await store.dispatch('departmentsModule/deleteDepartment', departmentToDelete.value);
+        showConfirmationModal.value = false;
+        alertMessage.value = 'Xóa phòng ban thành công!';
+        alertType.value = 'success';
+        alertVisible.value = true;
+        loadData();
+        setTimeout(() => {
+          alertVisible.value = false;
+        }, 1000);
+      }
+    };
+
+    const cancelDelete = () => {
+      departmentToDelete.value = null;
+      showConfirmationModal.value = false;
+    };
+
+    const onPageChanged = (page: number) => {
+      store.commit('departmentsModule/setCurrentPage', page);
+      store.dispatch('departmentsModule/fetchDepartments', { pageNumber: page, pageSize: pageSize.value });
+    };
+
+    const loadData = () => {
+      store.dispatch('departmentsModule/fetchDepartments', { pageNumber: currentPage.value, pageSize: pageSize.value });
+    };
+
+    const reloadData = () => {
+      loadData();
+    };
+
+    loadData();
 
     return {
       showModal,
@@ -110,16 +192,29 @@ export default defineComponent({
       isView,
       currentDepartment,
       departments,
+      currentPage,
+      totalDepartments,
+      pageSize,
       openAddModal,
       editDepartment,
       viewDepartment,
       closeModal,
       handleDepartmentSubmit,
-      deleteDepartment,
+      showDeleteConfirmation,
+      confirmDelete,
+      cancelDelete,
+      showConfirmationModal,
+      onPageChanged,
+      reloadData,
+      alertVisible,
+      alertMessage,
+      alertType,
     };
   },
 });
 </script>
+
+
 <style lang="scss" scoped>
 @import "@/styles/global.scss";
 
@@ -128,7 +223,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center; /* Center align text for all cells by default */
@@ -138,54 +234,75 @@ th {
   background-color: #f4f4f4;
 }
 
-.id-column {
-  width: 10%; /* Adjust as needed */
-}
-
 .name-column {
-  width: 30%; /* Adjust as needed */
+  width: 30%;
 }
 
 .description-column {
-  width: 40%; /* Adjust as needed */
+  width: 30%;
 }
 
 .actions-column {
-  width: 30%; /* Adjust as needed */
-  display: flex;
-  justify-content: space-around;
+  width: 20%;
+  justify-content: end;
+  &-content {
+    display: flex;
+    justify-content: end;
+  }
 }
 
 button {
   margin: 0 5px;
-  padding: 10px 10px;
+}
+
+.add-button,
+.reload-button {
+  margin-bottom: 10px;
+  padding: 8px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  color: white;
-  display: flex;
-  align-items: center;
 }
 
 .add-button {
-  background-color: #4CAF50; /* Green */
-  margin-bottom: 0.7vh;
+  background-color: #4caf50;
+  color: white;
+}
+
+.reload-button {
+  background-color: #2196f3;
+  color: white;
 }
 
 .edit-button {
-  background-color: #2196F3; /* Blue */
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .delete-button {
-  background-color: #f44336; /* Red */
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.view-button {
-  background-color: #FFC107; /* Amber */
+.text-left {
+  text-align: left;
 }
 
-button i {
-  margin-right: 5px;
+.success-message {
+  color: green;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
 }
 </style>
