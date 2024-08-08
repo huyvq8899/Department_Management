@@ -82,6 +82,7 @@ const authModule: Module<AuthState, any> = {
     logout({ commit }) {
       commit('logout');
     },
+    
   },
 };
 

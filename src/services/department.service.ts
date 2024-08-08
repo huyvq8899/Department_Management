@@ -35,6 +35,22 @@ export const getDepartmentsList = async (): Promise<Department[]> => {
   }
 };
 
+export const checkCodeDuplicate = async (code: string): Promise<boolean> => {
+    try {
+      // Make a GET request to the API endpoint
+      const response = await axios.get(`${API_URL}/Departments/CheckCodeDuplicateDepartment`, {
+        params: { code }, // Send code as a query parameter
+        headers: getHeaders(), // Add headers to the request
+      });
+  
+      // Assuming the API returns a boolean value indicating if the code is a duplicate
+      return response.data; 
+    } catch (error) {
+      console.error('Error checking duplicate department code:', error);
+      throw error;
+    }
+  };
+
 // Create a new department
 export const createDepartment = async (department: Department): Promise<Department> => {
   try {

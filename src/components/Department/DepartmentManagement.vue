@@ -18,6 +18,7 @@
     <table>
       <thead>
         <tr>
+          <th class="code-column">Mã</th>
           <th class="name-column">Tên</th>
           <th class="description-column">Mô tả</th>
           <th class="actions-column">Hành Động</th>
@@ -25,6 +26,7 @@
       </thead>
       <tbody>
         <tr v-for="department in departments" :key="department.id" @dblclick="viewDepartment(department)">
+          <td class="code-column text-left">{{ department.code }}</td>
           <td class="name-column text-left">{{ department.name }}</td>
           <td class="description-column text-left">{{ department.description }}</td>
           <td class="actions-column-content">
@@ -71,146 +73,154 @@ import AlertMessageModal from '@/components/AlertMessageModal.vue'; // Import Al
 import { Department } from '@/models/Department';
 
 export default defineComponent({
-  components: {
-    DepartmentModal,
-    Pagination,
-    ConfirmationModal,
-    AlertMessageModal, // Register AlertMessageModal
-  },
-  name: 'DepartmentManagement',
-  setup() {
-    const store = useStore();
-    const showModal = ref(false);
-    const isEdit = ref(false);
-    const isView = ref(false);
-    const currentDepartment = ref<Department | null>(null);
-    const showConfirmationModal = ref(false);
-    const departmentToDelete = ref<string | null>(null);
-    const alertVisible = ref(false); // New state for alert visibility
-    const alertMessage = ref(''); // New state for alert message
-    const alertType = ref('success'); // New state for alert type (success/error)
+    components: {
+        DepartmentModal,
+        Pagination,
+        ConfirmationModal,
+        AlertMessageModal, // Register AlertMessageModal
+    },
+    name: 'DepartmentManagement',
+    setup() {
+        const store = useStore();
+        const showModal = ref(false);
+        const isEdit = ref(false);
+        const isView = ref(false);
+        const currentDepartment = ref<Department | null>(null);
+        const showConfirmationModal = ref(false);
+        const departmentToDelete = ref<string | null>(null);
+        const alertVisible = ref(false); // New state for alert visibility
+        const alertMessage = ref(''); // New state for alert message
+        const alertType = ref('success'); // New state for alert type (success/error)
 
-    const departments = computed(() => store.state.departmentsModule.departments);
-    const currentPage = computed(() => store.state.departmentsModule.currentPage);
-    const totalDepartments = computed(() => store.state.departmentsModule.totalDepartments);
-    const pageSize = computed(() => store.state.departmentsModule.pageSize);
+        const departments = computed(() => store.state.departmentsModule.departments);
+        const currentPage = computed(() => store.state.departmentsModule.currentPage);
+        const totalDepartments = computed(() => store.state.departmentsModule.totalDepartments);
+        const pageSize = computed(() => store.state.departmentsModule.pageSize);
 
-    const openAddModal = () => {
-      currentDepartment.value = null;
-      isEdit.value = false;
-      isView.value = false;
-      showModal.value = true;
-    };
+        const openAddModal = () => {
+            currentDepartment.value = { id: '', code: '', name: '', description: '' };
+            isEdit.value = false;
+            isView.value = false;
+            showModal.value = true;
+        };
 
-    const editDepartment = (department: Department) => {
-      currentDepartment.value = { ...department };
-      isEdit.value = true;
-      isView.value = false;
-      showModal.value = true;
-    };
+        const editDepartment = (department: Department) => {
+            currentDepartment.value = { ...department };
+            isEdit.value = true;
+            isView.value = false;
+            showModal.value = true;
+        };
 
-    const viewDepartment = (department: Department) => {
-      currentDepartment.value = department;
-      isEdit.value = false;
-      isView.value = true;
-      showModal.value = true;
-    };
+        const viewDepartment = (department: Department) => {
+            currentDepartment.value = department;
+            isEdit.value = false;
+            isView.value = true;
+            showModal.value = true;
+        };
 
-    const closeModal = () => {
-      showModal.value = false;
-    };
+        const closeModal = () => {
+            showModal.value = false;
+        };
 
-    const handleDepartmentSubmit = async (department: Department) => {
-      try {
-        if (department) {
-          if (isEdit.value) {
-            await store.dispatch('departmentsModule/updateDepartment', department);
-            alertMessage.value = 'Cập nhật phòng ban thành công!';
-            alertType.value = 'success';
-          } else {
-            await store.dispatch('departmentsModule/addDepartment', department);
-            alertMessage.value = 'Thêm phòng ban thành công!';
-            alertType.value = 'success';
-          }
-          closeModal();
-          await loadData();
-        }
-      } catch (error) {
-        alertMessage.value = 'Có lỗi xảy ra khi lưu phòng ban!';
-        alertType.value = 'error';
-        console.error('Failed to save department:', error);
-      } finally {
-        alertVisible.value = true;
-        setTimeout(() => {
-          alertVisible.value = false;
-        }, 3000);
-      }
-    };
+        const handleDepartmentSubmit = async (department: Department) => {
+            try {
+                if (department) {
+                    const isDuplicate = await store.dispatch('departmentsModule/checkCodeDuplicate', department.code);
+                    if (isDuplicate) {
+                        alertMessage.value = 'Mã phòng ban đã tồn tại!';
+                        alertType.value = 'error';
+                        alertVisible.value = true;
+                        return;
+                    }
 
-    const showDeleteConfirmation = (id: string) => {
-      departmentToDelete.value = id;
-      showConfirmationModal.value = true;
-    };
+                    if (isEdit.value) {
+                        await store.dispatch('departmentsModule/updateDepartment', department);
+                        alertMessage.value = 'Cập nhật phòng ban thành công!';
+                        alertType.value = 'success';
+                    } else {
+                        await store.dispatch('departmentsModule/addDepartment', department);
+                        alertMessage.value = 'Thêm phòng ban thành công!';
+                        alertType.value = 'success';
+                    }
+                    closeModal();
+                    await loadData();
+                }
+            } catch (error) {
+                alertMessage.value = 'Có lỗi xảy ra khi lưu phòng ban!';
+                alertType.value = 'error';
+                console.error('Failed to save department:', error);
+            } finally {
+                alertVisible.value = true;
+                setTimeout(() => {
+                    alertVisible.value = false;
+                }, 3000);
+            }
+        };
 
-    const confirmDelete = async () => {
-      if (departmentToDelete.value) {
-        await store.dispatch('departmentsModule/deleteDepartment', departmentToDelete.value);
-        showConfirmationModal.value = false;
-        alertMessage.value = 'Xóa phòng ban thành công!';
-        alertType.value = 'success';
-        alertVisible.value = true;
+        const showDeleteConfirmation = (id: string) => {
+            departmentToDelete.value = id;
+            showConfirmationModal.value = true;
+        };
+
+        const confirmDelete = async () => {
+            if (departmentToDelete.value) {
+                await store.dispatch('departmentsModule/deleteDepartment', departmentToDelete.value);
+                showConfirmationModal.value = false;
+                alertMessage.value = 'Xóa phòng ban thành công!';
+                alertType.value = 'success';
+                alertVisible.value = true;
+                loadData();
+                setTimeout(() => {
+                    alertVisible.value = false;
+                }, 1000);
+            }
+        };
+
+        const cancelDelete = () => {
+            departmentToDelete.value = null;
+            showConfirmationModal.value = false;
+        };
+
+        const onPageChanged = (page: number) => {
+            store.commit('departmentsModule/setCurrentPage', page);
+            store.dispatch('departmentsModule/fetchDepartments', { pageNumber: page, pageSize: pageSize.value });
+        };
+
+        const loadData = () => {
+            store.dispatch('departmentsModule/fetchDepartments', { pageNumber: currentPage.value, pageSize: pageSize.value });
+        };
+
+        const reloadData = () => {
+            loadData();
+        };
+
         loadData();
-        setTimeout(() => {
-          alertVisible.value = false;
-        }, 1000);
-      }
-    };
 
-    const cancelDelete = () => {
-      departmentToDelete.value = null;
-      showConfirmationModal.value = false;
-    };
-
-    const onPageChanged = (page: number) => {
-      store.commit('departmentsModule/setCurrentPage', page);
-      store.dispatch('departmentsModule/fetchDepartments', { pageNumber: page, pageSize: pageSize.value });
-    };
-
-    const loadData = () => {
-      store.dispatch('departmentsModule/fetchDepartments', { pageNumber: currentPage.value, pageSize: pageSize.value });
-    };
-
-    const reloadData = () => {
-      loadData();
-    };
-
-    loadData();
-
-    return {
-      showModal,
-      isEdit,
-      isView,
-      currentDepartment,
-      departments,
-      currentPage,
-      totalDepartments,
-      pageSize,
-      openAddModal,
-      editDepartment,
-      viewDepartment,
-      closeModal,
-      handleDepartmentSubmit,
-      showDeleteConfirmation,
-      confirmDelete,
-      cancelDelete,
-      showConfirmationModal,
-      onPageChanged,
-      reloadData,
-      alertVisible,
-      alertMessage,
-      alertType,
-    };
-  },
+        return {
+            showModal,
+            isEdit,
+            isView,
+            currentDepartment,
+            departments,
+            currentPage,
+            totalDepartments,
+            pageSize,
+            openAddModal,
+            editDepartment,
+            viewDepartment,
+            closeModal,
+            handleDepartmentSubmit,
+            showDeleteConfirmation,
+            confirmDelete,
+            cancelDelete,
+            showConfirmationModal,
+            onPageChanged,
+            reloadData,
+            alertVisible,
+            alertMessage,
+            alertType,
+        };
+    },
 });
 </script>
 
@@ -232,6 +242,10 @@ td {
 
 th {
   background-color: #f4f4f4;
+}
+
+.code-column {
+  width: 20%;
 }
 
 .name-column {

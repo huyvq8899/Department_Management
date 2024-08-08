@@ -7,6 +7,7 @@ interface DepartmentsState {
   totalDepartments: number;
   currentPage: number;
   pageSize: number;
+  isCodeDuplicate: boolean;
 }
 
 const departmentsModule: Module<DepartmentsState, RootState> = {
@@ -15,7 +16,8 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
     departments: [],
     totalDepartments: 0,
     currentPage: 1,
-    pageSize: 10, // Default page size, can be adjusted
+    pageSize: 10, 
+    isCodeDuplicate: false,
   },
   mutations: {
     setDepartments(state, { departments, totalCount }) {
@@ -41,6 +43,10 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
     setPageSize(state, size: number) {
       state.pageSize = size;
     },
+    setCodeDuplicateStatus(state, status: boolean) {
+      state.isCodeDuplicate = status;
+  },
+
   },
   actions: {
     async fetchDepartments({ commit, state }, { pageNumber = state.currentPage, pageSize = state.pageSize } = {}) {
@@ -80,6 +86,18 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         // Handle error accordingly
       }
     },
+
+    async checkCodeDuplicate({ commit }, code: string) {
+      try {
+          const response = await departmentService.checkCodeDuplicate(code);
+          const isDuplicate = response;
+          commit('setCodeDuplicateStatus', isDuplicate);
+          return isDuplicate;
+      } catch (error) {
+          console.error('Failed to check code duplicate:', error);
+          return false;
+      }
+  },
   },
 };
 

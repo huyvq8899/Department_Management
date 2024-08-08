@@ -4,6 +4,19 @@
       <h2>{{ modalTitle }}</h2>
       <form @submit.prevent="submit">
         <div class="input-group">
+          <label for="departmentCode">Mã:</label>
+          <div class="input-with-icon">
+            <i class="fas fa-code"></i>
+            <input
+              id="departmentCode"
+              v-model="department.code"
+              placeholder="Mã"
+              :disabled="isView" 
+              required
+            />
+          </div>
+        </div>
+        <div class="input-group">
           <label for="departmentName">Tên:</label>
           <div class="input-with-icon">
             <i class="fas fa-building"></i>
@@ -25,7 +38,6 @@
               v-model="department.description"
               placeholder="Mô tả"
               :disabled="isView" 
-              
             />
           </div>
         </div>
@@ -33,7 +45,7 @@
           <button v-if="!isView" type="submit" class="submit-button">
             <i class="fas fa-save"></i> {{ isEdit ? 'Cập nhật' : 'Thêm mới' }}
           </button>
-          <button  v-if="!isView" type="button" class="cancel-button" @click="close">
+          <button v-if="!isView" type="button" class="cancel-button" @click="close">
             <i class="fas fa-times"></i> Hủy
           </button>
           <button v-if="isView" type="button" class="close-button" @click="close">
@@ -72,6 +84,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const department = ref<Department>({
       id: '',
+      code: '', // Added code field
       name: '',
       description: ''
     });
@@ -80,7 +93,7 @@ export default defineComponent({
       if (newVal) {
         department.value = { ...newVal };
       } else {
-        department.value = { id: '', name: '', description: '' }; // Reset to default if no data
+        department.value = { id: '', code: '', name: '', description: '' }; // Reset to default if no data
       }
     }, { immediate: true });
 
@@ -90,7 +103,7 @@ export default defineComponent({
     });
 
     const submit = () => {
-      if (department.value.name) {
+      if (department.value.name && department.value.code) {
         emit('submit', department.value);
       } else {
         // Optionally handle validation or errors
@@ -107,7 +120,6 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -190,4 +202,88 @@ export default defineComponent({
     background-color: #2196F3; /* Blue */
   }
 }
+<style lang="scss">
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 0; /* Remove rounded corners */
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.input-group {
+  margin-bottom: 15px;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .input-with-icon {
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 10px; /* Space between icon and input */
+      color: #333;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100%;
+    }
+  }
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 5px;
+    }
+  }
+
+  .submit-button {
+    background-color: #4CAF50; /* Green */
+  }
+
+  .cancel-button {
+    background-color: #f44336; /* Red */
+  }
+
+  .close-button {
+    background-color: #2196F3; /* Blue */
+  }
+}
+
 </style>
