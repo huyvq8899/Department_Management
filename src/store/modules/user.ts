@@ -1,12 +1,14 @@
 import { Module } from 'vuex';
 import { User } from '@/models/User';
 import { RootState } from '@/models/Department';
-import userService from '@/services/user.service';
+import { checkEmailDuplicate, createUser, deleteUser, getUsersList, getUsersWithPagination, updateUser } from '@/services/user.service';
+
 
 interface UserState {
   users: User[];
   currentUser: User | null;
-  authenticatedUser: User | null; // Đã đăng nhập
+  authenticatedUser: User | null; 
+  totalUsers: number;
 }
 
 const userModule: Module<UserState, RootState> = {
@@ -15,10 +17,12 @@ const userModule: Module<UserState, RootState> = {
     users: [],
     currentUser: null,
     authenticatedUser: null,
+    totalUsers: 0,
   },
   mutations: {
-    setUsers(state, users: User[]) {
-      state.users = users;
+    setUsers(state, { items, totalCount }: { items: User[], totalCount: number }) {
+      state.users = items;
+      state.totalUsers = totalCount;
     },
     setCurrentUser(state, user: User | null) {
       state.currentUser = user;
@@ -28,45 +32,54 @@ const userModule: Module<UserState, RootState> = {
     },
   },
   actions: {
-    async fetchUsers({ commit }) {
-      console.log('Fetching users from database...');
+    async fetchUsersWithPagination({ commit }, { pageNumber, pageSize }) {
+      console.log('Fetching users with pagination...');
       try {
-        const response = await userService.fetchUsers();
-        commit('setUsers', response.data);
+        const { items, totalCount } = await getUsersWithPagination(pageNumber, pageSize);
+        commit('setUsers', { items, totalCount });
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching users with pagination:', error);
       }
     },
-    async fetchUser({ commit }, id: number) {
+    async fetchUsersList({ commit }) {
+      console.log('Fetching full user list...');
       try {
-        const response = await userService.fetchUser(id);
-        commit('setCurrentUser', response.data);
+        const users = await getUsersList();
+        commit('setUsers', { items: users, totalCount: users.length });
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('Error fetching users list:', error);
       }
     },
     async addUser({ dispatch }, user: User) {
       try {
-        await userService.addUser(user);
-        dispatch('fetchUsers'); // Lấy danh sách người dùng sau khi thêm mới
+        await createUser(user);
+        dispatch('fetchUsersWithPagination', { pageNumber: 1, pageSize: 10 }); 
       } catch (error) {
         console.error('Error adding user:', error);
       }
     },
     async updateUser({ dispatch }, user: User) {
       try {
-        await userService.updateUser(user);
-        dispatch('fetchUsers'); // Lấy danh sách người dùng sau khi cập nhật
+        await updateUser(user.id!, user);
+        dispatch('fetchUsersWithPagination', { pageNumber: 1, pageSize: 10 }); 
       } catch (error) {
         console.error('Error updating user:', error);
       }
     },
-    async deleteUser({ dispatch }, userId: number) {
+    async deleteUser({ dispatch }, userId: string) {
       try {
-        await userService.deleteUser(userId);
-        dispatch('fetchUsers'); // Lấy danh sách người dùng sau khi xóa
+        await deleteUser(userId);
+        dispatch('fetchUsersWithPagination', { pageNumber: 1, pageSize: 10 }); 
       } catch (error) {
         console.error('Error deleting user:', error);
+      }
+    },
+    async checkEmailDuplicate(_, email: string) {
+      try {
+        return await checkEmailDuplicate(email);
+      } catch (error) {
+        console.error('Error checking duplicate email:', error);
+        return false;
       }
     }
   },

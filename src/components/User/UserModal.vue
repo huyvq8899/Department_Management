@@ -2,80 +2,99 @@
   <div v-if="visible" class="modal-overlay">
     <div class="modal-content">
       <h2>{{ modalTitle }}</h2>
-      <form v-if="!isView" @submit.prevent="submit">
+      <form @submit.prevent="submit">
         <div class="input-group">
-          <label for="userName">Username:</label>
+          <label for="userName">Tên đăng nhập:</label>
           <div class="input-with-icon">
             <i class="fas fa-user"></i>
-            <input v-model="user.userName" placeholder="Username" required />
+            <input
+              id="userName"
+              v-model="user.userName"
+              placeholder="Tên đăng nhập"
+              :disabled="isView"
+              required
+            />
           </div>
         </div>
         <div class="input-group">
-          <label for="password">Password:</label>
+          <label for="fullName">Họ và tên:</label>
           <div class="input-with-icon">
-            <i class="fas fa-lock"></i>
-            <input v-model="user.password" type="password" placeholder="Password" />
-          </div>
-        </div>
-        <div class="input-group">
-          <label for="fullName">Full Name:</label>
-          <div class="input-with-icon">
-            <i class="fas fa-user-tag"></i>
-            <input v-model="user.fullName" placeholder="Full Name" required />
+            <i class="fas fa-user-tie"></i>
+            <input
+              id="fullName"
+              v-model="user.fullName"
+              placeholder="Họ và tên"
+              :disabled="isView"
+              required
+            />
           </div>
         </div>
         <div class="input-group">
           <label for="email">Email:</label>
           <div class="input-with-icon">
             <i class="fas fa-envelope"></i>
-            <input v-model="user.email" type="email" placeholder="Email" />
+            <input
+              id="email"
+              v-model="user.email"
+              type="email"
+              placeholder="Email"
+              :disabled="isView"
+            />
           </div>
         </div>
         <div class="input-group">
-          <label for="phoneNumber">Phone Number:</label>
+          <label for="phoneNumber">Số điện thoại:</label>
           <div class="input-with-icon">
             <i class="fas fa-phone"></i>
-            <input v-model="user.phoneNumber" placeholder="Phone Number" />
+            <input
+              id="phoneNumber"
+              v-model="user.phoneNumber"
+              type="tel"
+              placeholder="Số điện thoại"
+              :disabled="isView"
+            />
           </div>
         </div>
         <div class="input-group">
-          <label for="address">Address:</label>
+          <label for="address">Địa chỉ:</label>
           <div class="input-with-icon">
-            <i class="fas fa-address-book"></i>
-            <input v-model="user.address" placeholder="Address" />
+            <i class="fas fa-home"></i>
+            <input
+              id="address"
+              v-model="user.address"
+              placeholder="Địa chỉ"
+              :disabled="isView"
+            />
           </div>
         </div>
         <div class="input-group">
-          <label for="departmentId">Department ID:</label>
+          <label for="departmentId">Mã phòng ban:</label>
           <div class="input-with-icon">
-            <i class="fas fa-building"></i>
-            <input v-model="user.departmentId" placeholder="Department ID" />
+            <i class="fas fa-briefcase"></i>
+            <input
+              id="departmentId"
+              v-model="user.departmentId"
+              placeholder="Mã phòng ban"
+              :disabled="isView"
+            />
           </div>
         </div>
         <div class="button-group">
-          <button type="submit" class="submit-button">
-            <i class="fas fa-save"></i> {{ isEdit ? 'Update' : 'Add' }}
+          <button v-if="!isView" type="submit" class="submit-button">
+            <i class="fas fa-save"></i> {{ isEdit ? 'Cập nhật' : 'Thêm mới' }}
           </button>
-          <button type="button" class="cancel-button" @click="close">
-            <i class="fas fa-times"></i> Cancel
+          <button v-if="!isView" type="button" class="cancel-button" @click="close">
+            <i class="fas fa-times"></i> Hủy
+          </button>
+          <button v-if="isView" type="button" class="close-button" @click="close">
+            <i class="fas fa-times"></i> Đóng
           </button>
         </div>
       </form>
-      <div v-else>
-        <p>ID: {{ user.id }}</p>
-        <p>Username: {{ user.userName }}</p>
-        <p>Full Name: {{ user.fullName }}</p>
-        <p>Email: {{ user.email || 'Not provided' }}</p>
-        <p>Phone Number: {{ user.phoneNumber || 'Not provided' }}</p>
-        <p>Address: {{ user.address || 'Not provided' }}</p>
-        <p>Department ID: {{ user.departmentId || 'Not provided' }}</p>
-        <button class="close-button" @click="close">
-          <i class="fas fa-times"></i> Close
-        </button>
-      </div>
     </div>
   </div>
 </template>
+
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 import { User } from '@/models/User';
@@ -84,47 +103,61 @@ export default defineComponent({
   props: {
     visible: {
       type: Boolean,
-      required: true,
+      required: true
     },
     userData: {
       type: Object as () => User | null,
-      default: null,
+      default: null
     },
     isEdit: {
       type: Boolean,
-      required: true,
+      required: true
     },
     isView: {
       type: Boolean,
-      required: true,
-    },
+      required: true
+    }
   },
   emits: ['close', 'submit'],
   setup(props, { emit }) {
     const user = ref<User>({
       id: '',
-      userName: '',
+      userName: '', // Add userName field
       fullName: '',
       email: null,
       phoneNumber: null,
       address: null,
       departmentId: null,
-      password: '',
     });
 
     watch(() => props.userData, (newVal) => {
       if (newVal) {
         user.value = { ...newVal };
+      } else {
+        user.value = {
+          id: '',
+          userName: '',
+          fullName: '',
+          email: null,
+          phoneNumber: null,
+          address: null,
+          departmentId: null,
+        }; // Reset to default if no data
       }
-    });
+    }, { immediate: true });
 
     const modalTitle = computed(() => {
-      if (props.isView) return 'View User';
-      return props.isEdit ? 'Edit User' : 'Add User';
+      if (props.isView) return 'Xem Người Dùng';
+      return props.isEdit ? 'Chỉnh Sửa Người Dùng' : 'Thêm Mới Người Dùng';
     });
 
     const submit = () => {
-      emit('submit', user.value);
+      if (user.value.userName && user.value.fullName) {
+        emit('submit', user.value);
+      } else {
+        // Optionally handle validation or errors
+        console.log('Form is incomplete');
+      }
     };
 
     const close = () => {
@@ -132,10 +165,11 @@ export default defineComponent({
     };
 
     return { user, modalTitle, submit, close };
-  },
+  }
 });
 </script>
-<style scoped lang="scss">
+
+<style lang="scss">
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -151,9 +185,10 @@ export default defineComponent({
 .modal-content {
   background: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 0; /* Remove rounded corners */
   width: 400px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
 }
 
 .input-group {
@@ -164,16 +199,16 @@ export default defineComponent({
     margin-bottom: 5px;
     color: #333;
   }
-  
+
   .input-with-icon {
     display: flex;
     align-items: center;
-    
+
     i {
-      margin-right: 10px;
+      margin-right: 10px; /* Space between icon and input */
       color: #333;
     }
-    
+
     input {
       flex: 1;
       padding: 10px;
@@ -206,15 +241,15 @@ export default defineComponent({
   }
 
   .submit-button {
-    background-color: #4CAF50;
+    background-color: #4CAF50; /* Green */
   }
 
   .cancel-button {
-    background-color: #f44336;
+    background-color: #f44336; /* Red */
   }
 
   .close-button {
-    background-color: #2196F3;
+    background-color: #2196F3; /* Blue */
   }
 }
 </style>

@@ -1,18 +1,25 @@
 <template>
   <div>
-    <div class="header">
-      <button class="add-button" @click="handleOpenModal">
-        <i class="fas fa-plus"></i> Thêm Người Dùng
-      </button>
-      <button class="reload-button" @click="reloadData">
-        <i class="fas fa-sync"></i> Tải Lại
-      </button>
-    </div>
+    <h1>Quản Lý Người Dùng</h1>
+    <button class="add-button" @click="openAddModal">
+      <i class="fas fa-plus"></i> Thêm Người Dùng
+    </button>
+    <button class="reload-button" @click="reloadData">
+      <i class="fas fa-sync"></i> Tải lại
+    </button>
+
+    <!-- Alert Message Modal -->
+    <AlertMessageModal 
+      :visible="alertVisible" 
+      :message="alertMessage" 
+      :alertType="alertType" 
+      @close="alertVisible = false"
+    />
+
+    <!-- User Table -->
     <table>
       <thead>
         <tr>
-          <th class="id-column">ID</th>
-          <th class="username-column">Tên Đăng Nhập</th>
           <th class="name-column">Họ và Tên</th>
           <th class="email-column">Email</th>
           <th class="phone-column">Số Điện Thoại</th>
@@ -22,109 +29,231 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user.id">
-          <td class="id-column">{{ user.id }}</td>
-          <td class="username-column">{{ user.userName }}</td>
-          <td class="name-column">{{ user.fullName }}</td>
-          <td class="email-column">{{ user.email || 'Không có' }}</td>
-          <td class="phone-column">{{ user.phoneNumber || 'Không có' }}</td>
-          <td class="address-column">{{ user.address || 'Không có' }}</td>
-          <td class="department-column">{{ user.departmentId || 'Không có' }}</td>
-          <td class="actions-column">
-            <button class="edit-button" @click="() => handleEditUser(user)">
-              <i class="fas fa-edit"></i> Sửa
+        <tr v-for="user in users" :key="user.id" @dblclick="viewUser(user)">
+          <td class="name-column text-left">{{ user.fullName }}</td>
+          <td class="email-column text-left">{{ user.email || 'Không có' }}</td>
+          <td class="phone-column text-left">{{ user.phoneNumber || 'Không có' }}</td>
+          <td class="address-column text-left">{{ user.address || 'Không có' }}</td>
+          <td class="department-column text-left">{{ user.departmentId || 'Không có' }}</td>
+          <td class="actions-column-content">
+            <button class="edit-button" @click.stop="editUser(user)">
+              <i class="fas fa-edit"></i>
             </button>
-            <button class="delete-button" @click="() => handleDeleteUser(user.id)">
-              <i class="fas fa-trash"></i> Xóa
+            <button class="delete-button" @click.stop="showDeleteConfirmation(user.id)">
+              <i class="fas fa-trash"></i>
             </button>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Pagination -->
+    <pagination 
+      :current-page="currentPage" 
+      :total="totalUsers" 
+      :page-size="pageSize" 
+      @page-changed="onPageChanged"
+    />
+
+    <!-- User Modal -->
+    <UserModal 
+      :visible="showModal"
+      :userData="currentUser"
+      :isEdit="isEdit"
+      :isView="isView"
+      @close="closeModal"
+      @submit="handleUserSubmit"
+    />
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal 
+      :visible="showConfirmationModal" 
+      message="Bạn có chắc chắn muốn xóa người dùng này không?"
+      :onConfirm="confirmDelete"
+      :onCancel="cancelDelete"
+    />
   </div>
 </template>
+
 <script lang="ts">
-import { defineComponent, computed, onMounted, PropType } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useStore } from 'vuex';
+import UserModal from '@/components/User/UserModal.vue';
+import Pagination from '@/components/Pagination.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import AlertMessageModal from '@/components/AlertMessageModal.vue';
 import { User } from '@/models/User';
 
 export default defineComponent({
-  name: 'UserTable',
-  props: {
-    openAddModal: {
-      type: Function as PropType<() => void>,
-      required: true,
-    },
-    editUser: {
-      type: Function as PropType<(user: User) => void>,
-      required: true,
-    },
-    deleteUser: {
-      type: Function as PropType<(id: string) => void>, // Thay đổi thành string
-      required: true,
-    },
+  components: {
+    UserModal,
+    Pagination,
+    ConfirmationModal,
+    AlertMessageModal,
   },
-  setup(props) {
+  name: 'UserManagement',
+  setup() {
     const store = useStore();
+    const showModal = ref(false);
+    const isEdit = ref(false);
+    const isView = ref(false);
+    const currentUser = ref<User | null>(null);
+    const showConfirmationModal = ref(false);
+    const userToDelete = ref<string | null>(null);
+    const alertVisible = ref(false);
+    const alertMessage = ref('');
+    const alertType = ref('success');
 
-    // Lấy danh sách người dùng từ Vuex store
-    const users = computed(() => store.state.userModule.users as User[]);
+    const users = computed(() => store.state.userModule.users);
+    const currentPage = computed(() => store.state.userModule.currentPage);
+    const totalUsers = computed(() => store.state.userModule.totalUsers);
+    const pageSize = computed(() => store.state.userModule.pageSize);
 
-    // Gọi API để tải dữ liệu người dùng khi thành phần được tạo ra
-    onMounted(() => {
-      store.dispatch('userModule/fetchUsers');
-    });
-
-    // Phương thức mở modal thêm người dùng
-    const handleOpenModal = () => {
-      props.openAddModal();
+    const openAddModal = () => {
+      currentUser.value = {
+    id: '',
+    userName: '', // Thêm thuộc tính userName
+    fullName: '',
+    email: null,
+    phoneNumber: null,
+    address: null,
+    departmentId: null,
+  };
+      isEdit.value = false;
+      isView.value = false;
+      showModal.value = true;
     };
 
-    // Phương thức chỉnh sửa người dùng
-    const handleEditUser = (user: User) => {
-      props.editUser(user);
+    const editUser = (user: User) => {
+      currentUser.value = { ...user };
+      isEdit.value = true;
+      isView.value = false;
+      showModal.value = true;
     };
 
-    // Phương thức xóa người dùng
-    const handleDeleteUser = async (id: string) => {
+    const viewUser = (user: User) => {
+      currentUser.value = user;
+      isEdit.value = false;
+      isView.value = true;
+      showModal.value = true;
+    };
+
+    const closeModal = () => {
+      showModal.value = false;
+    };
+
+    const handleUserSubmit = async (user: User) => {
       try {
-        await store.dispatch('userModule/deleteUser', id);
+        if (user) {
+          const isDuplicate = await store.dispatch('userModule/checkEmailDuplicate', user.email);
+          if (isDuplicate) {
+            alertMessage.value = 'Email đã tồn tại!';
+            alertType.value = 'error';
+            alertVisible.value = true;
+            return;
+          }
+
+          if (isEdit.value) {
+            await store.dispatch('userModule/updateUser', user);
+            alertMessage.value = 'Cập nhật người dùng thành công!';
+            alertType.value = 'success';
+          } else {
+            await store.dispatch('userModule/addUser', user);
+            alertMessage.value = 'Thêm người dùng thành công!';
+            alertType.value = 'success';
+          }
+          closeModal();
+          await loadData();
+        }
       } catch (error) {
-        console.error('Lỗi khi xóa người dùng:', error);
+        alertMessage.value = 'Có lỗi xảy ra khi lưu người dùng!';
+        alertType.value = 'error';
+        console.error('Failed to save user:', error);
+      } finally {
+        alertVisible.value = true;
+        setTimeout(() => {
+          alertVisible.value = false;
+        }, 3000);
       }
     };
 
-    // Phương thức tải lại dữ liệu
-    const reloadData = () => {
-      store.dispatch('userModule/fetchUsers');
+    const showDeleteConfirmation = (id: string) => {
+      userToDelete.value = id;
+      showConfirmationModal.value = true;
     };
 
+    const confirmDelete = async () => {
+      if (userToDelete.value) {
+        await store.dispatch('userModule/deleteUser', userToDelete.value);
+        showConfirmationModal.value = false;
+        alertMessage.value = 'Xóa người dùng thành công!';
+        alertType.value = 'success';
+        alertVisible.value = true;
+        loadData();
+        setTimeout(() => {
+          alertVisible.value = false;
+        }, 1000);
+      }
+    };
+
+    const cancelDelete = () => {
+      userToDelete.value = null;
+      showConfirmationModal.value = false;
+    };
+
+    const onPageChanged = (page: number) => {
+      store.commit('userModule/setCurrentPage', page);
+      store.dispatch('userModule/fetchUsers', { pageNumber: page, pageSize: pageSize.value });
+    };
+
+    const loadData = () => {
+      store.dispatch('userModule/fetchUsers', { pageNumber: currentPage.value, pageSize: pageSize.value });
+    };
+
+    const reloadData = () => {
+      loadData();
+    };
+
+    loadData();
+
     return {
+      showModal,
+      isEdit,
+      isView,
+      currentUser,
       users,
-      handleOpenModal,
-      handleEditUser,
-      handleDeleteUser,
+      currentPage,
+      totalUsers,
+      pageSize,
+      openAddModal,
+      editUser,
+      viewUser,
+      closeModal,
+      handleUserSubmit,
+      showDeleteConfirmation,
+      confirmDelete,
+      cancelDelete,
+      showConfirmationModal,
+      onPageChanged,
       reloadData,
+      alertVisible,
+      alertMessage,
+      alertType,
     };
   },
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/styles/global.scss";
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
 
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
@@ -132,15 +261,6 @@ th, td {
 
 th {
   background-color: #f4f4f4;
-  font-weight: bold;
-}
-
-.id-column {
-  width: 10%;
-}
-
-.username-column {
-  width: 20%;
 }
 
 .name-column {
@@ -156,7 +276,7 @@ th {
 }
 
 .address-column {
-  width: 15%;
+  width: 20%;
 }
 
 .department-column {
@@ -164,44 +284,54 @@ th {
 }
 
 .actions-column {
-  width: 15%;
+  width: 10%;
+}
+
+.actions-column-content {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
 }
 
 button {
   margin: 0 5px;
-  padding: 10px;
+  padding: 5px 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
-  color: white;
-  display: flex;
-  align-items: center;
 }
 
 .add-button {
-  background-color: #4CAF50;
-  display: inline-flex;
-  align-items: center;
+  background-color: #4caf50;
+  color: white;
 }
 
 .reload-button {
-  background-color: #FFC107;
-  display: inline-flex;
-  align-items: center;
+  background-color: #2196f3;
+  color: white;
 }
 
 .edit-button {
-  background-color: #2196F3;
+  background-color: #ffc107;
+  color: white;
 }
 
 .delete-button {
   background-color: #f44336;
+  color: white;
 }
 
-button i {
-  margin-right: 5px;
+.text-left {
+  text-align: left;
+}
+
+.success-message {
+  color: green;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
 }
 </style>
