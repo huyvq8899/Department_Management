@@ -203,11 +203,11 @@ export default defineComponent({
 
     const onPageChanged = (page: number) => {
       store.commit('userModule/setCurrentPage', page);
-      store.dispatch('userModule/fetchUsers', { pageNumber: page, pageSize: pageSize.value });
+      store.dispatch('userModule/fetchUsersWithPagination', { pageNumber: page, pageSize: pageSize.value });
     };
 
     const loadData = () => {
-      store.dispatch('userModule/fetchUsers', { pageNumber: currentPage.value, pageSize: pageSize.value });
+      store.dispatch('userModule/fetchUsersWithPagination', { pageNumber: currentPage.value, pageSize: pageSize.value });
     };
 
     const reloadData = () => {

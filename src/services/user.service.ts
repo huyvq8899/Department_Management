@@ -4,7 +4,7 @@ import axios from 'axios';
 import { User } from '@/models/User';
 import { getHeaders } from '@/utils/headerHelper';
 
-const API_URL = `${process.env.VUE_APP_API_URL}/api/users`; // Cập nhật URL API
+const API_URL = `${process.env.VUE_APP_API_URL}/api/Users`; // Cập nhật URL API
 
 // Get list of users with pagination
 export const getUsersWithPagination = async (pageNumber: number, pageSize: number): Promise<{ items: User[], totalCount: number }> => {
