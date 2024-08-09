@@ -17,7 +17,7 @@
     />
 
     <!-- User Table -->
-    <table>
+    <table class="table-user">
       <thead>
         <tr>
           <th class="name-column">Họ và Tên</th>
@@ -34,7 +34,7 @@
           <td class="email-column text-left">{{ user.email || 'Không có' }}</td>
           <td class="phone-column text-left">{{ user.phoneNumber || 'Không có' }}</td>
           <td class="address-column text-left">{{ user.address || 'Không có' }}</td>
-          <td class="department-column text-left">{{ user.departmentId || 'Không có' }}</td>
+          <td class="department-column text-left">{{ user.departmentName || 'Không có' }}</td>
           <td class="actions-column-content">
             <button class="edit-button" @click.stop="editUser(user)">
               <i class="fas fa-edit"></i>
@@ -48,7 +48,7 @@
     </table>
 
     <!-- Pagination -->
-    <pagination 
+    <pagination class="flex-right"
       :current-page="currentPage" 
       :total="totalUsers" 
       :page-size="pageSize" 
@@ -61,6 +61,7 @@
       :userData="currentUser"
       :isEdit="isEdit"
       :isView="isView"
+      :departments="departments"
       @close="closeModal"
       @submit="handleUserSubmit"
     />
@@ -76,13 +77,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import UserModal from '@/components/User/UserModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import AlertMessageModal from '@/components/AlertMessageModal.vue';
 import { User } from '@/models/User';
+import * as departmentService from '@/services/department.service';
+import { Department } from '@/models/Department';
 
 export default defineComponent({
   components: {
@@ -103,21 +106,35 @@ export default defineComponent({
     const alertVisible = ref(false);
     const alertMessage = ref('');
     const alertType = ref('success');
+    const departments = ref<Department[]>([]);
+
+    const oldEmail = ref<string | null>(null);
 
     const users = computed(() => store.state.userModule.users);
     const currentPage = computed(() => store.state.userModule.currentPage);
     const totalUsers = computed(() => store.state.userModule.totalUsers);
     const pageSize = computed(() => store.state.userModule.pageSize);
 
+
+
+    onMounted(async () => {
+      try {
+        departments.value = await departmentService.getDepartmentsList();
+        console.log("🚀 ~ onMounted ~ departments.value:", departments.value)
+      } catch (error) {
+        console.error('Failed to fetch departments:', error);
+      }
+    });
+
     const openAddModal = () => {
       currentUser.value = {
     id: '',
-    userName: '', // Thêm thuộc tính userName
     fullName: '',
     email: null,
     phoneNumber: null,
     address: null,
     departmentId: null,
+    password: ''
   };
       isEdit.value = false;
       isView.value = false;
@@ -129,6 +146,7 @@ export default defineComponent({
       isEdit.value = true;
       isView.value = false;
       showModal.value = true;
+      oldEmail.value = user.email;
     };
 
     const viewUser = (user: User) => {
@@ -143,39 +161,53 @@ export default defineComponent({
     };
 
     const handleUserSubmit = async (user: User) => {
-      try {
-        if (user) {
-          const isDuplicate = await store.dispatch('userModule/checkEmailDuplicate', user.email);
-          if (isDuplicate) {
-            alertMessage.value = 'Email đã tồn tại!';
-            alertType.value = 'error';
-            alertVisible.value = true;
-            return;
-          }
+  try {
+    if (user) {
+      const isDuplicate = await store.dispatch('userModule/checkEmailDuplicate', user.email);
 
-          if (isEdit.value) {
-            await store.dispatch('userModule/updateUser', user);
-            alertMessage.value = 'Cập nhật người dùng thành công!';
-            alertType.value = 'success';
-          } else {
-            await store.dispatch('userModule/addUser', user);
-            alertMessage.value = 'Thêm người dùng thành công!';
-            alertType.value = 'success';
-          }
-          closeModal();
-          await loadData();
-        }
-      } catch (error) {
-        alertMessage.value = 'Có lỗi xảy ra khi lưu người dùng!';
+      console.log("🚀 ~ handleUserSubmit ~ user.email:", oldEmail, isDuplicate)
+      console.log("🚀 ~ handleUserSubmit ~ user.email:", user.email)
+
+      if (isDuplicate && (isEdit.value && (oldEmail.value != user.email))) {
+        alertMessage.value = 'Email đã tồn tại!';
         alertType.value = 'error';
-        console.error('Failed to save user:', error);
-      } finally {
         alertVisible.value = true;
-        setTimeout(() => {
-          alertVisible.value = false;
-        }, 3000);
+        return;
       }
-    };
+
+      if (isEdit.value) {
+        await store.dispatch('userModule/updateUser', user);
+        alertMessage.value = 'Cập nhật người dùng thành công!';
+        alertType.value = 'success';
+      } else {
+
+        console.log("🚀 ~ handleUserSubmit ~ user.password:", user.password)
+        console.log("🚀 ~ handleUserSubmit ~ user.email:", user.email)
+
+        // Call registerUser before adding the user to the store
+        const userId = await store.dispatch('userModule/addUser', user);
+        console.log("🚀 ~ handleUserSubmit ~ userId:", userId)
+
+        user.id = userId;
+        await store.dispatch('userModule/updateUser', user);
+        alertMessage.value = 'Thêm người dùng thành công!';
+        alertType.value = 'success';
+      }
+      closeModal();
+      await loadData();
+    }
+  } catch (error) {
+    alertMessage.value = 'Có lỗi xảy ra khi lưu người dùng!';
+    alertType.value = 'error';
+    console.error('Failed to save user:', error);
+  } finally {
+    alertVisible.value = true;
+    setTimeout(() => {
+      alertVisible.value = false;
+    }, 3000);
+  }
+};
+
 
     const showDeleteConfirmation = (id: string) => {
       userToDelete.value = id;
@@ -206,9 +238,30 @@ export default defineComponent({
       store.dispatch('userModule/fetchUsersWithPagination', { pageNumber: page, pageSize: pageSize.value });
     };
 
-    const loadData = () => {
-      store.dispatch('userModule/fetchUsersWithPagination', { pageNumber: currentPage.value, pageSize: pageSize.value });
-    };
+    const loadData = async () => {
+  try {
+    // Fetch users with pagination
+    await store.dispatch('userModule/fetchUsersWithPagination', { pageNumber: currentPage.value, pageSize: pageSize.value });
+
+    // Fetch departments list (if not already loaded)
+    const departments = await departmentService.getDepartmentsList();
+    
+    // Map department ID to name for users
+    const users = store.state.userModule.users;
+    const departmentMap = new Map(departments.map(department => [department.id, department.name]));
+    
+    users.forEach((user : User) => {
+      user.departmentName = departmentMap.get(user.departmentId ?? '') || 'Unknown'; // Add department name or 'Unknown' if not found
+    });
+    console.log("🚀 ~ users.forEach ~ users:", users)
+
+    // If you want to update the state with enriched user data
+    store.commit('userModule/setUsers', { items: users, totalCount: store.state.userModule.totalUsers });
+
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
+};
 
     const reloadData = () => {
       loadData();
@@ -239,6 +292,7 @@ export default defineComponent({
       alertVisible,
       alertMessage,
       alertType,
+      departments
     };
   },
 });
@@ -333,5 +387,9 @@ button {
 .error-message {
   color: red;
   margin-bottom: 10px;
+}
+
+.table-user {
+  margin-top: 0.5vh;
 }
 </style>

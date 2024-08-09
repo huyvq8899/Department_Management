@@ -28,7 +28,7 @@ const roleModule: Module<RoleState, any> = {
         state.roles.splice(index, 1, updatedRole);
       }
     },
-    removeRole(state, roleId: number) {
+    removeRole(state, roleId: string) {
       state.roles = state.roles.filter(role => role.id !== roleId);
     },
     setLoading(state, loading: boolean) {

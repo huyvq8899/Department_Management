@@ -65,7 +65,7 @@ export default defineComponent({
   },
   emits: ['close', 'submit'],
   setup(props, { emit }) {
-    const role = ref<Role>({ id: 0, name: '', description: '', permissions: [] });
+    const role = ref<Role>({ id: '', code:'',name: '', description: '', permissions: [] });
     const permissionsString = ref('');
 
     watch(() => props.roleData, (newVal) => {

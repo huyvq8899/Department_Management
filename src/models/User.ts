@@ -1,6 +1,5 @@
 export interface User {
   id: string;
-  userName: string;
   fullName: string;
   email: string | null;
   phoneNumber: string | null;
@@ -8,4 +7,5 @@ export interface User {
   departmentId: string | null;
   permissions?: string[];
   password?: string;
+  departmentName?: string;
 }

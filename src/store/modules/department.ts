@@ -16,7 +16,7 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
     departments: [],
     totalDepartments: 0,
     currentPage: 1,
-    pageSize: 10, 
+    pageSize: 10,
     isCodeDuplicate: false,
   },
   mutations: {
@@ -45,7 +45,7 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
     },
     setCodeDuplicateStatus(state, status: boolean) {
       state.isCodeDuplicate = status;
-  },
+    },
 
   },
   actions: {
@@ -89,15 +89,24 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
 
     async checkCodeDuplicate({ commit }, code: string) {
       try {
-          const response = await departmentService.checkCodeDuplicate(code);
-          const isDuplicate = response;
-          commit('setCodeDuplicateStatus', isDuplicate);
-          return isDuplicate;
+        const response = await departmentService.checkCodeDuplicate(code);
+        const isDuplicate = response;
+        commit('setCodeDuplicateStatus', isDuplicate);
+        return isDuplicate;
       } catch (error) {
-          console.error('Failed to check code duplicate:', error);
-          return false;
+        console.error('Failed to check code duplicate:', error);
+        return false;
       }
-  },
+    },
+    async getAllDepartments() {
+      try {
+        const departments = await departmentService.getDepartmentsList();
+        return departments;
+      } catch (error) {
+        console.error('Error fetching departments with pagination:', error);
+        // Handle error accordingly
+      }
+    },
   },
 };
 

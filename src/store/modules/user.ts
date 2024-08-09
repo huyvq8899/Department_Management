@@ -1,7 +1,7 @@
 import { Module } from 'vuex';
 import { User } from '@/models/User';
-import { RootState } from '@/models/Department';
-import { checkEmailDuplicate, createUser, deleteUser, getUsersList, getUsersWithPagination, updateUser } from '@/services/user.service';
+import { Department, RootState } from '@/models/Department';
+import { checkEmailDuplicate, createUser, deleteUser, getUsersList, getUsersWithPagination, registerUser, updateUser } from '@/services/user.service';
 
 
 interface UserState {
@@ -9,6 +9,9 @@ interface UserState {
   currentUser: User | null;
   authenticatedUser: User | null; 
   totalUsers: number;
+  currentPage: number;
+  pageSize: number;
+  listDepartments: Department[];
 }
 
 const userModule: Module<UserState, RootState> = {
@@ -18,6 +21,9 @@ const userModule: Module<UserState, RootState> = {
     currentUser: null,
     authenticatedUser: null,
     totalUsers: 0,
+    currentPage: 1,
+    pageSize: 10, 
+    listDepartments: [],
   },
   mutations: {
     setUsers(state, { items, totalCount }: { items: User[], totalCount: number }) {
@@ -52,8 +58,9 @@ const userModule: Module<UserState, RootState> = {
     },
     async addUser({ dispatch }, user: User) {
       try {
-        await createUser(user);
+        const result = await createUser({email: user.email ?? '' , password: user.password ?? ''});
         dispatch('fetchUsersWithPagination', { pageNumber: 1, pageSize: 10 }); 
+        return result;
       } catch (error) {
         console.error('Error adding user:', error);
       }
@@ -81,7 +88,18 @@ const userModule: Module<UserState, RootState> = {
         console.error('Error checking duplicate email:', error);
         return false;
       }
-    }
+    },
+
+    async registerUser({ dispatch }, { email, password }: { email: string, password: string }) {
+      try {
+        const result = await registerUser({ email, password });
+        dispatch('fetchUsersWithPagination', { pageNumber: 1, pageSize: 10 }); 
+
+        return result;  
+      } catch (error) {
+        console.error('Error registering user:', error);
+      }
+    },
   },
 };
 

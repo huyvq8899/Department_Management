@@ -5,15 +5,8 @@
       :editUser="editUser"
       :deleteUser="deleteUser"
     />
-    <UserModal
-      :visible="showModal"
-      :userData="currentUser"
-      :isEdit="isEdit"
-      :isView="isView"
-      @close="closeModal"
-      @submit="handleUserSubmit"
-    />
   </div>
+    
 </template>
 
 <script lang="ts">
@@ -26,7 +19,7 @@ import { User } from '@/models/User';
 export default defineComponent({
   components: {
     UserTable,
-    UserModal,
+
   },
   setup() {
     const store = useStore();
@@ -44,7 +37,6 @@ export default defineComponent({
     const openAddModal = () => {
       currentUser.value = {
         id: '',
-        userName: '',
         fullName: '',
         email: null,
         phoneNumber: null,

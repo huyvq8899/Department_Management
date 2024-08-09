@@ -4,13 +4,18 @@ import axios from 'axios';
 import { User } from '@/models/User';
 import { getHeaders } from '@/utils/headerHelper';
 
+interface RegisterUser {
+  email: string;
+  password: string;
+}
+
 const API_URL = `${process.env.VUE_APP_API_URL}/api/Users`; // Cập nhật URL API
 
 // Get list of users with pagination
-export const getUsersWithPagination = async (pageNumber: number, pageSize: number): Promise<{ items: User[], totalCount: number }> => {
+export const getUsersWithPagination = async (PageNumber: number, PageSize: number): Promise<{ items: User[], totalCount: number }> => {
   try {
     const response = await axios.get(`${API_URL}/GetUsersWithPagination`, {
-      params: { pageNumber, pageSize },
+      params: { PageNumber, PageSize }, // Sử dụng đúng tên tham số
       headers: getHeaders(),
     });
     return {
@@ -39,8 +44,8 @@ export const getUsersList = async (): Promise<User[]> => {
 // Check for duplicate email
 export const checkEmailDuplicate = async (email: string): Promise<boolean> => {
   try {
-    const response = await axios.get(`${API_URL}/CheckEmailDuplicate`, {
-      params: { email },
+    const response = await axios.get(`${API_URL}/CheckEmailUserDuplicate`, {
+      params: { Email : email },
       headers: getHeaders(),
     });
     return response.data;
@@ -50,18 +55,17 @@ export const checkEmailDuplicate = async (email: string): Promise<boolean> => {
   }
 };
 
-// Create a new user
-export const createUser = async (user: User): Promise<User> => {
+export async function createUser({ email, password }: { email: string, password: string }) {
   try {
-    const response = await axios.post(API_URL, user, {
-      headers: getHeaders(),
+    const response = await axios.post(`${API_URL}/CreateUser`, null, {
+      params: { Email: email, Password: password },
     });
-    return response.data;
+    return response.data; // Giả sử API trả về userId hoặc dữ liệu cần thiết khác
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;
   }
-};
+}
 
 // Update an existing user
 export const updateUser = async (id: string, user: User): Promise<User> => {
@@ -84,6 +88,23 @@ export const deleteUser = async (id: string): Promise<void> => {
     });
   } catch (error) {
     console.error('Error deleting user:', error);
+    throw error;
+  }
+};
+
+
+
+export const registerUser = async (user: RegisterUser) => {
+  try {
+    const response = await axios.post(`${API_URL}/register`, {
+      email: user.email,
+      password: user.password,
+    });
+    console.log("🚀 ~ registerUser ~ response.data:", response.data)
+
+    return response.data;
+  } catch (error) {
+    console.error('Error registering user:', error);
     throw error;
   }
 };
