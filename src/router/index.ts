@@ -8,7 +8,7 @@ import UserView from '@/views/UserView.vue';
 import RoleView from '@/views/RoleView.vue';
 import PermissionView from '@/views/PermissionView.vue';
 import { useStore } from 'vuex';
-
+import FunctionManagement from '@/components/FunctionManagement/FunctionManagement.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
@@ -49,6 +49,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'permissions',
         name: 'PermissionView',
         component: PermissionView,
+      },
+      {
+        path: 'functions',
+        name: 'FunctionManagement',
+        component: FunctionManagement,
       },
       // Thêm các route con khác nếu cần
     ],

@@ -27,6 +27,11 @@
               <i class="fas fa-lock"></i> Permissions
             </router-link>
           </li>
+          <li>
+            <router-link to="/functions" exact-active-class="active" class="menu-item">
+              <i class="fas fa-lock"></i> Functions
+            </router-link>
+          </li>
           <!-- Add more menu items as needed -->
         </ul>
         <!-- Logout button fixed to bottom-right corner -->

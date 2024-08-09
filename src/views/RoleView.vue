@@ -103,7 +103,7 @@ export default defineComponent({
     const pageSize = computed(() => store.state.rolesModule.pageSize);
 
     const openAddModal = () => {
-      currentRole.value = { id: '', code: '', name: '', description: '', permissions: [],};
+      currentRole.value = { id: '', code: '', name: '', description: '', permissions: [] };
       isEdit.value = false;
       isView.value = false;
       showModal.value = true;
@@ -174,7 +174,7 @@ export default defineComponent({
         alertMessage.value = 'Xóa vai trò thành công!';
         alertType.value = 'success';
         alertVisible.value = true;
-        loadData();
+        await loadData();
         setTimeout(() => {
           alertVisible.value = false;
         }, 1000);
@@ -191,8 +191,8 @@ export default defineComponent({
       store.dispatch('rolesModule/fetchRoles', { pageNumber: page, pageSize: pageSize.value });
     };
 
-    const loadData = () => {
-      store.dispatch('rolesModule/fetchRoles', { pageNumber: currentPage.value, pageSize: pageSize.value });
+    const loadData = async () => {
+      await store.dispatch('rolesModule/fetchRoles', { pageNumber: currentPage.value, pageSize: pageSize.value });
     };
 
     const reloadData = () => {
@@ -310,17 +310,36 @@ button {
   cursor: pointer;
 }
 
-.text-left {
-  text-align: left;
+.flex-right {
+  display: flex;
+  justify-content: flex-end;
 }
 
-.success-message {
-  color: green;
-  margin-bottom: 10px;
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.error-message {
-  color: red;
-  margin-bottom: 10px;
+.modal {
+  width: 600px;
+  max-width: 100%;
+  margin: auto;
+  border-radius: 0;
+}
+
+.modal-header {
+  text-align: center;
+  padding: 10px;
+  background-color: #f4f4f4;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  text-align: right;
+  padding: 10px;
 }
 </style>

@@ -1,80 +1,85 @@
+// src/store/modules/rolesModule.ts
 import { Module } from 'vuex';
 import { Role } from '@/models/Role';
-import { addRole, deleteRole, fetchRoles, updateRole } from '@/services/role.service';
+import { RootState } from '@/models/Department';
+import { fetchRoles, addRole, updateRole, deleteRole } from '@/services/role.service';
 
-interface RoleState {
+interface RolesState {
   roles: Role[];
-  loading: boolean;
-  error: string | null;
+  currentPage: number;
+  totalRoles: number;
+  pageSize: number;
 }
 
-const roleModule: Module<RoleState, any> = {
+const rolesModule: Module<RolesState, RootState> = {
   namespaced: true,
-  state: {
+  state: () => ({
     roles: [],
-    loading: false,
-    error: null,
+    currentPage: 1,
+    totalRoles: 0,
+    pageSize: 10,
+  }),
+  getters: {
+    roles: (state) => state.roles,
+    currentPage: (state) => state.currentPage,
+    totalRoles: (state) => state.totalRoles,
+    pageSize: (state) => state.pageSize,
   },
   mutations: {
-    setRoles(state, roles: Role[]) {
+    SET_ROLES(state, roles: Role[]) {
       state.roles = roles;
     },
-    addRole(state, role: Role) {
-      state.roles.push(role);
+    SET_CURRENT_PAGE(state, page: number) {
+      state.currentPage = page;
     },
-    updateRole(state, updatedRole: Role) {
-      const index = state.roles.findIndex(role => role.id === updatedRole.id);
-      if (index !== -1) {
-        state.roles.splice(index, 1, updatedRole);
-      }
+    SET_TOTAL_ROLES(state, total: number) {
+      state.totalRoles = total;
     },
-    removeRole(state, roleId: string) {
-      state.roles = state.roles.filter(role => role.id !== roleId);
-    },
-    setLoading(state, loading: boolean) {
-      state.loading = loading;
-    },
-    setError(state, error: string | null) {
-      state.error = error;
+    SET_PAGE_SIZE(state, size: number) {
+      state.pageSize = size;
     },
   },
   actions: {
-    async fetchRoles({ commit }) {
-      commit('setLoading', true);
+    async fetchRoles({ commit, state }) {
       try {
         const roles = await fetchRoles();
-        commit('setRoles', roles);
-      } catch (error : any) {
-        commit('setError', error.message || 'Failed to fetch roles');
-      } finally {
-        commit('setLoading', false);
+        commit('SET_ROLES', roles);
+        commit('SET_TOTAL_ROLES', roles.length); // Assuming the length of roles is total, adjust if needed
+      } catch (error) {
+        console.error('Failed to fetch roles:', error);
       }
     },
-    async addRole({ commit }, role: Role) {
+    async addRole({ dispatch }, role: Role) {
       try {
-        const newRole = await addRole(role);
-        commit('addRole', newRole);
-      } catch (error : any) {
-        commit('setError', error.message || 'Failed to add role');
+        await addRole(role);
+        await dispatch('fetchRoles'); // Refresh the list after adding
+      } catch (error) {
+        console.error('Failed to add role:', error);
       }
     },
-    async updateRole({ commit }, role: Role) {
+    async updateRole({ dispatch }, role: Role) {
       try {
-        const updatedRole = await updateRole(role);
-        commit('updateRole', updatedRole);
-      } catch (error : any) {
-        commit('setError', error.message || 'Failed to update role');
+        await updateRole(role);
+        await dispatch('fetchRoles'); // Refresh the list after updating
+      } catch (error) {
+        console.error('Failed to update role:', error);
       }
     },
-    async deleteRole({ commit }, roleId: number) {
+    async deleteRole({ dispatch }, id: string) {
       try {
-        await deleteRole(roleId);
-        commit('removeRole', roleId);
-      } catch (error : any) {
-        commit('setError', error.message || 'Failed to delete role');
+        await deleteRole(id);
+        await dispatch('fetchRoles'); // Refresh the list after deleting
+      } catch (error) {
+        console.error('Failed to delete role:', error);
       }
+    },
+    setCurrentPage({ commit }, page: number) {
+      commit('SET_CURRENT_PAGE', page);
+    },
+    setPageSize({ commit }, size: number) {
+      commit('SET_PAGE_SIZE', size);
     },
   },
 };
 
-export default roleModule;
+export default rolesModule;
