@@ -1,7 +1,4 @@
-// src/utils/validators.js
-
 export function validateEmail(email: string) {
-    // Basic email validation regex pattern
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
 }

@@ -9,7 +9,6 @@ const mockRoles: Role[] = [
   { id: '2', code: 'USER', name: 'User', description: 'Regular user with limited access', permissions: ['view_content'] },
 ];
 
-// Mock API functions
 export async function fetchRoles(): Promise<Role[]> {
   await new Promise(resolve => setTimeout(resolve, 500));
   return mockRoles;
@@ -17,7 +16,7 @@ export async function fetchRoles(): Promise<Role[]> {
 
 export async function addRole(role: Role): Promise<Role> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const newRole = { ...role, id: (mockRoles.length + 1).toString() }; // Mock ID generation
+  const newRole = { ...role, id: (mockRoles.length + 1).toString() }; 
   mockRoles.push(newRole);
   return newRole;
 }

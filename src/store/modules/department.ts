@@ -61,7 +61,6 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         commit('setDepartments', { departments: items, totalCount });
       } catch (error) {
         console.error('Error fetching departments with pagination:', error);
-        // Handle error accordingly
       }
     },
     async addDepartment({ commit }, department: Department) {
@@ -71,7 +70,6 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         commit('addDepartment', newDepartment);
       } catch (error) {
         console.error('Error adding department:', error);
-        // Handle error accordingly
       }
     },
     async updateDepartment({ commit }, department: Department) {
@@ -80,7 +78,6 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         commit('updateDepartment', updatedDepartment);
       } catch (error) {
         console.error('Error updating department:', error);
-        // Handle error accordingly
       }
     },
     async deleteDepartment({ commit }, id: string) {
@@ -89,7 +86,6 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         commit('deleteDepartment', id);
       } catch (error) {
         console.error('Error deleting department:', error);
-        // Handle error accordingly
       }
     },
 
@@ -110,7 +106,6 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         return departments;
       } catch (error) {
         console.error('Error fetching departments with pagination:', error);
-        // Handle error accordingly
       }
     },
 
@@ -124,7 +119,6 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         return check;
       } catch (error) {
         console.error('Error fetching departments with pagination:', error);
-        // Handle error accordingly
       }
     },
 

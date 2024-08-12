@@ -69,7 +69,7 @@ import { useStore } from 'vuex';
 import DepartmentModal from '@/components/Department/modals/DepartmentModal.vue';
 import Pagination from '@/components/Pagination.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
-import AlertMessageModal from '@/components/AlertMessageModal.vue'; // Import AlertMessageModal
+import AlertMessageModal from '@/components/AlertMessageModal.vue'; 
 import { Department } from '@/models/Department';
 
 export default defineComponent({
@@ -77,7 +77,7 @@ export default defineComponent({
         DepartmentModal,
         Pagination,
         ConfirmationModal,
-        AlertMessageModal, // Register AlertMessageModal
+        AlertMessageModal, 
     },
     name: 'DepartmentManagement',
     setup() {
@@ -88,9 +88,9 @@ export default defineComponent({
         const currentDepartment = ref<Department | null>(null);
         const showConfirmationModal = ref(false);
         const departmentToDelete = ref<string | null>(null);
-        const alertVisible = ref(false); // New state for alert visibility
-        const alertMessage = ref(''); // New state for alert message
-        const alertType = ref('success'); // New state for alert type (success/error)
+        const alertVisible = ref(false); 
+        const alertMessage = ref(''); 
+        const alertType = ref('success'); 
 
         const departments = computed(() => store.state.departmentsModule.departments);
         const currentPage = computed(() => store.state.departmentsModule.currentPage);

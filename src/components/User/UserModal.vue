@@ -160,7 +160,7 @@ export default defineComponent({
       phoneNumber: null,
       address: null,
       departmentId: null,
-      password: '', // Thêm trường password
+      password: '', 
     });
     
     watch(() => props.userData, (newVal) => {
@@ -174,7 +174,7 @@ export default defineComponent({
           phoneNumber: null,
           address: null,
           departmentId: null,
-          password: '', // Reset lại trường password
+          password: '', 
         };
       }
     }, { immediate: true });
@@ -237,43 +237,41 @@ export default defineComponent({
   display: inline-block;
   width: 19.5vw;
 
-    padding: 10px 15px 10px 10px; // Space for the icon
+    padding: 10px 15px 10px 10px;
     font-size: 14px;
     border-radius: 4px;
     border: 1px solid #ced4da;
     background-color: #fff;
     color: #495057;
-    appearance: none; // Remove default dropdown arrow
+    appearance: none;
     cursor: pointer;
 
-    // Add custom arrow
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 16px 16px;
   
 
-  // Remove default arrow
   select::-ms-expand {
     display: none;
   }
 }
 
 .custom-option {
-  background-color: #f8f9fa; // Light background for options
-  color: #333; // Text color
+  background-color: #f8f9fa; 
+  color: #333; 
   padding: 6px;
   font-size: 15px;
   margin: 2px;
 
   &:hover {
-    background-color: #e9ecef; // Hover background color
-    color: #495057; // Hover text color
+    background-color: #e9ecef; 
+    color: #495057;
   }
 
   &:selected {
-    background-color: #007bff; // Selected background color
-    color: #fff; // Selected text color
+    background-color: #007bff;
+    color: #fff; 
   }
 }
 

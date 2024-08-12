@@ -18,7 +18,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     component: LayoutView,
-    meta: { requiresAuth: true }, // Thêm meta field cho xác thực
+    meta: { requiresAuth: true }, 
     children: [
       {
         path: '',
@@ -70,10 +70,9 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  const store = useStore(); // Access Vuex store
+  const store = useStore(); 
   const isLoggedIn = store.state.authModule.isLoggedIn;
 
-  // Fetch token status from Vuex store
   if (to.meta.requiresAuth && !isLoggedIn) {
     next('/login');
   } else {

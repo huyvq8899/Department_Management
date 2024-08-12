@@ -129,7 +129,6 @@ export default defineComponent({
       errors.value.name = department.value.name.length <= 250 ? '' : 'Tên không được vượt quá 250 ký tự';
     };
 
-    // Validation on form submit
     const validate = () => {
       validateCode();
       validateName();

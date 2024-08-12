@@ -67,34 +67,28 @@
   
   export default defineComponent({
     setup() {
-      // Sample data
       const functions = ref([
         { id: '1', name: 'Quản lý phòng ban'   , permissions: { view: true,add: true, edit: false, delete: false }},
         { id: '2', name: 'Quản lý nhân viên', permissions: { view: true, add: false, edit: true, delete: true } },
       ]);
   
-      // State for modal
       const showViewModal = ref(false);
       const currentFunction = ref<any>(null);
   
-      // View function details
       const viewFunction = (func: any) => {
         currentFunction.value = func;
         showViewModal.value = true;
       };
   
-      // Close view modal
       const closeViewModal = () => {
         showViewModal.value = false;
         currentFunction.value = null;
       };
   
-      // Update permission
       const updatePermission = (id: string, type: 'view' | 'add' | 'edit' | 'delete') => {
         const func = functions.value.find(f => f.id === id);
         if (func) {
           console.log(`Updated ${type} permission for ${func.name} to ${func.permissions[type]}`);
-          // You can perform an API call or other logic here
         }
       };
   

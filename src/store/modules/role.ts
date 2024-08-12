@@ -44,7 +44,7 @@ const rolesModule: Module<RolesState, RootState> = {
       try {
         const roles = await fetchRoles();
         commit('SET_ROLES', roles);
-        commit('SET_TOTAL_ROLES', roles.length); // Assuming the length of roles is total, adjust if needed
+        commit('SET_TOTAL_ROLES', roles.length); 
       } catch (error) {
         console.error('Failed to fetch roles:', error);
       }
@@ -52,7 +52,7 @@ const rolesModule: Module<RolesState, RootState> = {
     async addRole({ dispatch }, role: Role) {
       try {
         await addRole(role);
-        await dispatch('fetchRoles'); // Refresh the list after adding
+        await dispatch('fetchRoles'); 
       } catch (error) {
         console.error('Failed to add role:', error);
       }
@@ -60,7 +60,7 @@ const rolesModule: Module<RolesState, RootState> = {
     async updateRole({ dispatch }, role: Role) {
       try {
         await updateRole(role);
-        await dispatch('fetchRoles'); // Refresh the list after updating
+        await dispatch('fetchRoles'); 
       } catch (error) {
         console.error('Failed to update role:', error);
       }
@@ -68,7 +68,7 @@ const rolesModule: Module<RolesState, RootState> = {
     async deleteRole({ dispatch }, id: string) {
       try {
         await deleteRole(id);
-        await dispatch('fetchRoles'); // Refresh the list after deleting
+        await dispatch('fetchRoles'); 
       } catch (error) {
         console.error('Failed to delete role:', error);
       }

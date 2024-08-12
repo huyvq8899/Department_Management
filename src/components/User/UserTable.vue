@@ -184,7 +184,6 @@ export default defineComponent({
         console.log("🚀 ~ handleUserSubmit ~ user.password:", user.password)
         console.log("🚀 ~ handleUserSubmit ~ user.email:", user.email)
 
-        // Call registerUser before adding the user to the store
         const userId = await store.dispatch('userModule/addUser', user);
         console.log("🚀 ~ handleUserSubmit ~ userId:", userId)
 
@@ -240,22 +239,18 @@ export default defineComponent({
 
     const loadData = async () => {
   try {
-    // Fetch users with pagination
     await store.dispatch('userModule/fetchUsersWithPagination', { pageNumber: currentPage.value, pageSize: pageSize.value });
 
-    // Fetch departments list (if not already loaded)
     const departments = await departmentService.getDepartmentsList();
     
-    // Map department ID to name for users
     const users = store.state.userModule.users;
     const departmentMap = new Map(departments.map(department => [department.id, department.name]));
     
     users.forEach((user : User) => {
-      user.departmentName = departmentMap.get(user.departmentId ?? '') || 'Unknown'; // Add department name or 'Unknown' if not found
+      user.departmentName = departmentMap.get(user.departmentId ?? '') || 'Unknown'; 
     });
     console.log("🚀 ~ users.forEach ~ users:", users)
 
-    // If you want to update the state with enriched user data
     store.commit('userModule/setUsers', { items: users, totalCount: store.state.userModule.totalUsers });
 
   } catch (error) {

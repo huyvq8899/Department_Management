@@ -22,11 +22,6 @@
               <i class="fas fa-user-tag"></i> Vai trò
             </router-link>
           </li>
-          <li>
-            <router-link to="/functions" exact-active-class="active" class="menu-item">
-              <i class="fas fa-lock"></i> Chức năng
-            </router-link>
-          </li>
           <!-- Add more menu items as needed -->
         </ul>
         <!-- Logout button fixed to bottom-right corner -->
@@ -54,15 +49,11 @@
       const router = useRouter();
   
       const logout = async () => {
-        // Show notification
   
-        // Wait for the notification to be rendered
         await nextTick();
   
-        // Clear authentication status from localStorage
         localStorage.removeItem('isLoggedIn');
   
-        // Redirect to login page
         router.push('/login').catch(err => {
           console.error(err);
         });

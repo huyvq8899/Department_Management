@@ -1,11 +1,9 @@
-// services/departmentService.ts
 import axios from 'axios';
-import { Department } from '@/models/Department'; // Cập nhật đường dẫn đến mô hình Department của bạn
-import { getHeaders } from '@/utils/headerHelper'; // Import getHeaders
+import { Department } from '@/models/Department'; 
+import { getHeaders } from '@/utils/headerHelper'; 
 
-const API_URL = `${process.env.VUE_APP_API_URL}/api`; // Cập nhật URL API của bạn
+const API_URL = `${process.env.VUE_APP_API_URL}/api`; 
 
-// Get list of departments with pagination
 export const getDepartmentsWithPagination = async (pageNumber: number, pageSize: number): Promise<{ items: Department[], totalCount: number }> => {
     try {
       const response = await axios.get(`${API_URL}/Departments/GetDepartmentWithPagination`, {
@@ -22,11 +20,10 @@ export const getDepartmentsWithPagination = async (pageNumber: number, pageSize:
     }
   };
 
-// Get list of departments
 export const getDepartmentsList = async (): Promise<Department[]> => {
   try {
     const response = await axios.get(`${API_URL}/Departments`, {
-      headers: getHeaders() // Thêm headers vào yêu cầu
+      headers: getHeaders() 
     });
     return response.data;
   } catch (error) {
@@ -37,13 +34,11 @@ export const getDepartmentsList = async (): Promise<Department[]> => {
 
 export const checkCodeDuplicate = async (code: string): Promise<boolean> => {
     try {
-      // Make a GET request to the API endpoint
       const response = await axios.get(`${API_URL}/Departments/CheckCodeDuplicateDepartment`, {
-        params: { code }, // Send code as a query parameter
-        headers: getHeaders(), // Add headers to the request
+        params: { code }, 
+        headers: getHeaders(),
       });
   
-      // Assuming the API returns a boolean value indicating if the code is a duplicate
       return response.data; 
     } catch (error) {
       console.error('Error checking duplicate department code:', error);
@@ -55,7 +50,7 @@ export const checkCodeDuplicate = async (code: string): Promise<boolean> => {
 export const createDepartment = async (department: Department): Promise<Department> => {
   try {
     const response = await axios.post(`${API_URL}/Departments`, department, {
-      headers: getHeaders() // Thêm headers vào yêu cầu
+      headers: getHeaders() 
     });
     return response.data;
   } catch (error) {
@@ -68,7 +63,7 @@ export const createDepartment = async (department: Department): Promise<Departme
 export const updateDepartment = async (id: string, department: Department): Promise<Department> => {
   try {
     const response = await axios.put(`${API_URL}/Departments/${id}`, department, {
-      headers: getHeaders() // Thêm headers vào yêu cầu
+      headers: getHeaders() 
     });
     return response.data;
   } catch (error) {
@@ -81,7 +76,7 @@ export const updateDepartment = async (id: string, department: Department): Prom
 export const deleteDepartment = async (id: string): Promise<void> => {
   try {
     await axios.delete(`${API_URL}/Departments/${id}`, {
-      headers: getHeaders() // Thêm headers vào yêu cầu
+      headers: getHeaders() 
     });
   } catch (error) {
     console.error('Error deleting department:', error);
@@ -93,15 +88,13 @@ export const deleteDepartment = async (id: string): Promise<void> => {
 export const CheckUsedDepartment = async (id: string): Promise<boolean> => {
   console.log("🚀 ~ CheckUsedDepartment ~ id:", id)
   try {
-    // Make a GET request to the API endpoint
     const response = await axios.get(`${API_URL}/Departments/CheckUsedDepartment`, {
-      params: { id }, // Send code as a query parameter
-      headers: getHeaders(), // Add headers to the request
+      params: { id },
+      headers: getHeaders(), 
     });
     console.log("🚀 ~ CheckUsedDepartment ~ response.data:", response)
     console.log("🚀 ~ CheckUsedDepartment ~ response.data:", response.data)
 
-    // Assuming the API returns a boolean value indicating if the code is a duplicate
     return response.data; 
   } catch (error) {
     console.error('Error checking duplicate department code:', error);
