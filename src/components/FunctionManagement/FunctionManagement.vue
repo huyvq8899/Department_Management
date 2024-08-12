@@ -8,15 +8,27 @@
           <tr>
             <th>Tên Chức Năng</th>
             <th>Xem</th>
+            <th>Thêm</th>
             <th>Sửa</th>
             <th>Xóa</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="func in functions" :key="func.id">
-            <td>{{ func.name }}</td>
+            <td class="text-left">{{ func.name }}</td>
+            <td >
+              <input  
+              type="checkbox" 
+              v-model="func.permissions.view"  
+              @change="updatePermission(func.id, 'view')" 
+            />
+            </td>
             <td>
-              <button @click="viewFunction(func)" class="btn btn-info btn-sm">Xem</button>
+              <input 
+              type="checkbox" 
+              v-model="func.permissions.add" 
+              @change="updatePermission(func.id, 'add')" 
+            />
             </td>
             <td>
               <input 
@@ -57,10 +69,8 @@
     setup() {
       // Sample data
       const functions = ref([
-        { id: '1', name: 'Quản lý Sản Phẩm', permissions: { view: true, edit: false, delete: false } },
-        { id: '2', name: 'Quản lý Đơn Hàng', permissions: { view: true, edit: true, delete: false } },
-        { id: '3', name: 'Quản lý Khách Hàng', permissions: { view: false, edit: false, delete: true } },
-        { id: '4', name: 'Quản lý Nhân Viên', permissions: { view: true, edit: true, delete: true } },
+        { id: '1', name: 'Quản lý phòng ban'   , permissions: { view: true,add: true, edit: false, delete: false }},
+        { id: '2', name: 'Quản lý nhân viên', permissions: { view: true, add: false, edit: true, delete: true } },
       ]);
   
       // State for modal
@@ -80,7 +90,7 @@
       };
   
       // Update permission
-      const updatePermission = (id: string, type: 'view' | 'edit' | 'delete') => {
+      const updatePermission = (id: string, type: 'view' | 'add' | 'edit' | 'delete') => {
         const func = functions.value.find(f => f.id === id);
         if (func) {
           console.log(`Updated ${type} permission for ${func.name} to ${func.permissions[type]}`);
@@ -100,8 +110,10 @@
   });
   </script>
   
-  <style scoped>
-  /* Styles for the table and checkboxes */
+  <style lang="scss" scoped>
+
+  @import "@/styles/global.scss";
+
   .table {
     width: 100%;
     border-collapse: collapse;

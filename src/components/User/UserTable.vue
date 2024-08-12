@@ -24,7 +24,7 @@
           <th class="email-column">Email</th>
           <th class="phone-column">Số Điện Thoại</th>
           <th class="address-column">Địa Chỉ</th>
-          <th class="department-column">ID Phòng Ban</th>
+          <th class="department-column">Phòng Ban</th>
           <th class="actions-column">Hành Động</th>
         </tr>
       </thead>

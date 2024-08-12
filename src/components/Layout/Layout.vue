@@ -2,41 +2,36 @@
     <div class="layout">
       <aside class="sidebar">
         <ul>
-          <li>
+          <!-- <li>
             <router-link to="/" exact-active-class="active" class="menu-item">
               <i class="fas fa-home"></i> Home
             </router-link>
-          </li>
+          </li> -->
           <li>
             <router-link to="/users" exact-active-class="active" class="menu-item">
-              <i class="fas fa-users"></i> Users
+              <i class="fas fa-users"></i> Người dùng
             </router-link>
           </li>
           <li>
             <router-link to="/departments" exact-active-class="active" class="menu-item">
-              <i class="fas fa-building"></i> Departments
+              <i class="fas fa-building"></i> Phòng ban 
             </router-link>
           </li>
           <li>
             <router-link to="/roles" exact-active-class="active" class="menu-item">
-              <i class="fas fa-user-tag"></i> Roles
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/permissions" exact-active-class="active" class="menu-item">
-              <i class="fas fa-lock"></i> Permissions
+              <i class="fas fa-user-tag"></i> Vai trò
             </router-link>
           </li>
           <li>
             <router-link to="/functions" exact-active-class="active" class="menu-item">
-              <i class="fas fa-lock"></i> Functions
+              <i class="fas fa-lock"></i> Chức năng
             </router-link>
           </li>
           <!-- Add more menu items as needed -->
         </ul>
         <!-- Logout button fixed to bottom-right corner -->
         <button @click="logout" class="logout-button">
-          <i class="fas fa-sign-out-alt"></i> Logout
+          <i class="fas fa-sign-out-alt"></i> Đăng xuất
         </button>
       </aside>
   

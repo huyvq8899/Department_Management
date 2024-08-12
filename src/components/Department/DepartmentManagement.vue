@@ -163,7 +163,10 @@ export default defineComponent({
         };
 
         const confirmDelete = async () => {
+          const checkUsedDepartment = await store.dispatch('departmentsModule/checkUsedDepartment', departmentToDelete.value);
+            console.log("🚀 ~ confirmDelete ~ checkUsedDepartment:", checkUsedDepartment)
             if (departmentToDelete.value) {
+              if (!checkUsedDepartment) {  
                 await store.dispatch('departmentsModule/deleteDepartment', departmentToDelete.value);
                 showConfirmationModal.value = false;
                 alertMessage.value = 'Xóa phòng ban thành công!';
@@ -173,7 +176,18 @@ export default defineComponent({
                 setTimeout(() => {
                     alertVisible.value = false;
                 }, 1000);
-            }
+              }
+              else {
+              showConfirmationModal.value = false;
+                alertMessage.value = 'Phòng ban đang có tham chiếu nhân viên k thể xóa!';
+                alertType.value = 'error';
+                alertVisible.value = true;
+                loadData();
+                setTimeout(() => {
+                    alertVisible.value = false;
+                }, 1000);}
+            } 
+            
         };
 
         const cancelDelete = () => {

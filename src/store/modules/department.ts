@@ -8,6 +8,7 @@ interface DepartmentsState {
   currentPage: number;
   pageSize: number;
   isCodeDuplicate: boolean;
+  isUsedDepartment: boolean;
 }
 
 const departmentsModule: Module<DepartmentsState, RootState> = {
@@ -18,6 +19,7 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
     currentPage: 1,
     pageSize: 10,
     isCodeDuplicate: false,
+    isUsedDepartment: false,
   },
   mutations: {
     setDepartments(state, { departments, totalCount }) {
@@ -45,6 +47,10 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
     },
     setCodeDuplicateStatus(state, status: boolean) {
       state.isCodeDuplicate = status;
+    },
+
+    setUsedDepartmentStatus(state, status: boolean) {
+      state.isUsedDepartment = status;
     },
 
   },
@@ -107,6 +113,21 @@ const departmentsModule: Module<DepartmentsState, RootState> = {
         // Handle error accordingly
       }
     },
+
+
+    async checkUsedDepartment({ commit }, id: string) {
+
+      try {
+        const check = await departmentService.CheckUsedDepartment(id);
+        commit('setUsedDepartmentStatus', check);
+
+        return check;
+      } catch (error) {
+        console.error('Error fetching departments with pagination:', error);
+        // Handle error accordingly
+      }
+    },
+
   },
 };
 

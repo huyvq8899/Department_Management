@@ -45,11 +45,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'RoleView',
         component: RoleView,
       },
-      {
-        path: 'permissions',
-        name: 'PermissionView',
-        component: PermissionView,
-      },
+      // {
+      //   path: 'permissions',
+      //   name: 'PermissionView',
+      //   component: PermissionView,
+      // },
       {
         path: 'functions',
         name: 'FunctionManagement',

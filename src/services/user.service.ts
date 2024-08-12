@@ -1,5 +1,3 @@
-// src/services/user.service.ts
-
 import axios from 'axios';
 import { User } from '@/models/User';
 import { getHeaders } from '@/utils/headerHelper';
@@ -9,13 +7,13 @@ interface RegisterUser {
   password: string;
 }
 
-const API_URL = `${process.env.VUE_APP_API_URL}/api/Users`; // Cập nhật URL API
+const API_URL = `${process.env.VUE_APP_API_URL}/api/Users`; // C?p nh?t URL API
 
 // Get list of users with pagination
 export const getUsersWithPagination = async (PageNumber: number, PageSize: number): Promise<{ items: User[], totalCount: number }> => {
   try {
     const response = await axios.get(`${API_URL}/GetUsersWithPagination`, {
-      params: { PageNumber, PageSize }, // Sử dụng đúng tên tham số
+      params: { PageNumber, PageSize }, 
       headers: getHeaders(),
     });
     return {
@@ -60,7 +58,7 @@ export async function createUser({ email, password }: { email: string, password:
     const response = await axios.post(`${API_URL}/CreateUser`, null, {
       params: { Email: email, Password: password },
     });
-    return response.data; // Giả sử API trả về userId hoặc dữ liệu cần thiết khác
+    return response.data; 
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;
@@ -92,15 +90,14 @@ export const deleteUser = async (id: string): Promise<void> => {
   }
 };
 
-
-
+// Register new user
 export const registerUser = async (user: RegisterUser) => {
   try {
     const response = await axios.post(`${API_URL}/register`, {
       email: user.email,
       password: user.password,
     });
-    console.log("🚀 ~ registerUser ~ response.data:", response.data)
+    console.log("?? ~ registerUser ~ response.data:", response.data)
 
     return response.data;
   } catch (error) {

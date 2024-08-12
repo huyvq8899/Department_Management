@@ -28,6 +28,8 @@
               :disabled="isView"
             />
           </div>
+          <span v-if="user.email && !isEmailValid" class="error-message">Vui lòng nhập địa chỉ email hợp lệ.</span>
+
         </div>
 
         <div v-if="(!isEdit && !isView)" class="input-group" >
@@ -42,9 +44,13 @@
               :disabled="isView"
               :required="false"
             />
-          </div>
-        </div>
 
+          </div>           
+          <span v-if="user.password && !isPasswordValid" class="error-message">
+            Mật khẩu phải dài hơn 8 ký tự, chứa chữ cái, số, 
+            ít nhất một ký tự đặc biệt và một chữ cái viết hoa.
+          </span>
+        </div>
         <div class="input-group">
           <label for="phoneNumber">Số điện thoại:</label>
           <div class="input-with-icon">
@@ -107,6 +113,7 @@
 import { defineComponent, ref, computed, watch } from 'vue';
 import { User } from '@/models/User'
 import { Department } from '@/models/Department';
+import { validatePassword, validateEmail } from '@/utils/validators';
 
 export default defineComponent({
   props: {
@@ -132,7 +139,10 @@ export default defineComponent({
     },
   },
   emits: ['close', 'submit'],
+
   setup(props, { emit }) {
+
+    /// Test case add
     // const user = ref<User>({
     //   id: '',
     //   fullName: 'Vux Quang Huyvq123',
@@ -174,6 +184,12 @@ export default defineComponent({
       return props.isEdit ? 'Chỉnh Sửa Người Dùng' : 'Thêm Mới Người Dùng';
     });
 
+    const isPasswordValid = computed(() => validatePassword(user.value.password!));
+    
+    const isEmailValid = computed(() => {
+      return validateEmail(user.value.email!);
+    });
+
     const submit = () => {
       if (user.value.email && user.value.fullName) {
         emit('submit', user.value);
@@ -187,12 +203,14 @@ export default defineComponent({
     };
     console.log("🚀 ~ departments:", props.departments)
 
-    return { user, modalTitle, submit, close };
+    return { user, modalTitle, submit, close, isPasswordValid, isEmailValid };
   }
 });
 </script>
 
 <style lang="scss">
+@import "@/styles/global.scss";
+
 .modal-overlay {
   position: fixed;
   top: 0;

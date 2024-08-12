@@ -13,7 +13,6 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import UserTable from '@/components/User/UserTable.vue';
-import UserModal from '@/components/User/UserModal.vue';
 import { User } from '@/models/User';
 
 export default defineComponent({
@@ -28,9 +27,7 @@ export default defineComponent({
     const isView = ref(false);
     const currentUser = ref<User | null>(null);
 
-    // Fetch users when the component is mounted
     onMounted(() => {
-      // Uncomment and adjust the following line if you have an action to fetch users
       // store.dispatch('userModule/fetchUsers');
     });
 

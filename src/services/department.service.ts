@@ -88,3 +88,23 @@ export const deleteDepartment = async (id: string): Promise<void> => {
     throw error;
   }
 };
+
+/// Check Usesd Department
+export const CheckUsedDepartment = async (id: string): Promise<boolean> => {
+  console.log("🚀 ~ CheckUsedDepartment ~ id:", id)
+  try {
+    // Make a GET request to the API endpoint
+    const response = await axios.get(`${API_URL}/Departments/CheckUsedDepartment`, {
+      params: { id }, // Send code as a query parameter
+      headers: getHeaders(), // Add headers to the request
+    });
+    console.log("🚀 ~ CheckUsedDepartment ~ response.data:", response)
+    console.log("🚀 ~ CheckUsedDepartment ~ response.data:", response.data)
+
+    // Assuming the API returns a boolean value indicating if the code is a duplicate
+    return response.data; 
+  } catch (error) {
+    console.error('Error checking duplicate department code:', error);
+    throw error;
+  }
+};
