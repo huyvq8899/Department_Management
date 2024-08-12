@@ -8,7 +8,7 @@
             </router-link>
           </li> -->
           <li>
-            <router-link to="/users" exact-active-class="active" class="menu-item">
+            <router-link to="/" exact-active-class="active" class="menu-item">
               <i class="fas fa-users"></i> Người dùng
             </router-link>
           </li>
